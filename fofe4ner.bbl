@@ -1,0 +1,109 @@
+\begin{thebibliography}{}
+
+\bibitem[\protect\citename{Chiu and Nichols}2016]{chiu2016named}
+Jason~PC Chiu and Eric Nichols.
+\newblock 2016.
+\newblock Named entity recognition with bidirectional {LSTM-CNN}s.
+\newblock {\em Transactions of the Association for Computational Linguistics},
+  4:357--370.
+
+\bibitem[\protect\citename{Collobert \bgroup et al.\egroup
+  }2011]{collobert2011natural}
+Ronan Collobert, Jason Weston, L{\'e}on Bottou, Michael Karlen, Koray
+  Kavukcuoglu, and Pavel Kuksa.
+\newblock 2011.
+\newblock Natural language processing (almost) from scratch.
+\newblock {\em Journal of Machine Learning Research}, 12(Aug):2493--2537.
+
+\bibitem[\protect\citename{dos Santos \bgroup et al.\egroup
+  }2015]{dos2015boosting}
+C{\i}cero dos Santos, Victor Guimaraes, RJ~Niter{\'o}i, and Rio de~Janeiro.
+\newblock 2015.
+\newblock Boosting named entity recognition with neural character embeddings.
+\newblock In {\em Proceedings of NEWS 2015 The Fifth Named Entities Workshop},
+  page~25.
+
+\bibitem[\protect\citename{Glorot \bgroup et al.\egroup }2011]{glorot2011deep}
+X.~Glorot, A.~Bordes, and Y.~Bengio.
+\newblock 2011.
+\newblock Deep sparse rectifier networks.
+\newblock In {\em International Conference on Artificial Intelligence and
+  Statistics. JMLR W\&CP:}, volume~15, pages 315--323.
+
+\bibitem[\protect\citename{Graves}2012]{graves2012neural}
+Alex Graves.
+\newblock 2012.
+\newblock Neural networks.
+\newblock In {\em Supervised Sequence Labelling with Recurrent Neural
+  Networks}, pages 15--35. Springer.
+
+\bibitem[\protect\citename{Hornik}1991]{hornik1991approximation}
+Kurt Hornik.
+\newblock 1991.
+\newblock Approximation capabilities of multilayer feedforward networks.
+\newblock {\em Neural networks}, 4(2):251--257.
+
+\bibitem[\protect\citename{Huang \bgroup et al.\egroup
+  }2015]{huang2015bidirectional}
+Zhiheng Huang, Wei Xu, and Kai Yu.
+\newblock 2015.
+\newblock Bidirectional {LSTM-CRF} models for sequence tagging.
+\newblock {\em arXiv preprint arXiv:1508.01991}.
+
+\bibitem[\protect\citename{Ji \bgroup et al.\egroup }2015]{kbpoverview2015}
+Heng Ji, Joel Nothman, and Ben Hachey.
+\newblock 2015.
+\newblock Overview of tac-kbp2015 tri-lingual entity discovery and linking.
+\newblock In {\em Proceedings of Text Analysis Conference (TAC2015)}.
+
+\bibitem[\protect\citename{Kim \bgroup et al.\egroup }2015]{kim2015character}
+Yoon Kim, Yacine Jernite, David Sontag, and Alexander~M Rush.
+\newblock 2015.
+\newblock Character-aware neural language models.
+\newblock {\em arXiv preprint arXiv:1508.06615}.
+
+\bibitem[\protect\citename{Liu \bgroup et al.\egroup }2016]{kbp2016iflytek}
+Dan Liu, Wei Lin, Shiliang Zhang, Si~Wei, and Hui Jiang.
+\newblock 2016.
+\newblock The {USTC\_NELSLIP} systems for trilingual entity detection and
+  linking tasks at {TAC KBP} 2016.
+\newblock In {\em Proceedings of Text Analysis Conference (TAC2016)}.
+
+\bibitem[\protect\citename{Mikolov \bgroup et al.\egroup
+  }2013]{mikolov2013distributed}
+Tomas Mikolov, Ilya Sutskever, Kai Chen, Greg~S Corrado, and Jeff Dean.
+\newblock 2013.
+\newblock Distributed representations of words and phrases and their
+  compositionality.
+\newblock In {\em Advances in neural information processing systems}, pages
+  3111--3119.
+
+\bibitem[\protect\citename{Rondeau and Su}2016]{rondeau2016lstm}
+Marc-Antoine Rondeau and Yi~Su.
+\newblock 2016.
+\newblock {LSTM}-based neurocrfs for named entity recognition.
+\newblock {\em Interspeech 2016}, pages 665--669.
+
+\bibitem[\protect\citename{Sang and Meulder}2003]{tjong2003introduction}
+Erik F Tjong~Kim Sang and Fien~De Meulder.
+\newblock 2003.
+\newblock Introduction to the conll-2003 shared task: Language independent
+  named entity recognition.
+\newblock In {\em Proceedings of the Seventh Conference on Natural Language
+  Learning at HLT-NAACL 2003,}, page 142–147.
+
+\bibitem[\protect\citename{Zhang \bgroup et al.\egroup }2015]{zhang2015fixed}
+Shiliang Zhang, Hui Jiang, Mingbin Xu, Junfeng Hou, and Lirong Dai.
+\newblock 2015.
+\newblock The fixed-size ordinally-forgetting encoding method for neural
+  network language models.
+\newblock In {\em Proceedings of ACL}.
+
+\bibitem[\protect\citename{Zhang \bgroup et al.\egroup }2016]{zhang2016compact}
+Shiliang Zhang, Hui Jiang, Shifu Xiong, Si~Wei, and Lirong Dai.
+\newblock 2016.
+\newblock Compact feedforward sequential memory networks for large vocabulary
+  continuous speech recognition.
+\newblock {\em Interspeech 2016}, pages 3389--3393.
+
+\end{thebibliography}
