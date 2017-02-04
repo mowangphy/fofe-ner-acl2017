@@ -79,7 +79,7 @@ Among many different NLP problems, in this paper, we are interested in a fundame
 NER and mention detection is a task of identifying entities (named and/or nominal) from raw text, and classifying  the detected entities into one of pre-defined categories such as person, organization, location, etc.  
 It is a core component of almost every other higher level NLP tasks, such as information extraction, language understanding, knowledge base population.  For example, given a raw text of English like {\it ``S.E.C. chief Mary Shapiro left Washington in December.''}. The NER task is to detect and label all the mentioned entities with correct  categories, such as
 \begin{quote}
-	\label{emp:3types}
+	\label{emp:4types}
 	\small
 	${[S.E.C.]}_{ORG}$ chief ${[Mary\ Shapiro]}_{PER}$ left ${[Washington]}_{LOC}$ in December .
 \end{quote}
@@ -87,7 +87,7 @@ It is a core component of almost every other higher level NLP tasks, such as inf
 In many applications, we may need to detect not only named entities but also the nominal mentions. For example, in an English sentence like {\it ``Mark and his closest friend Scarlet, a cello player, joined the same company.''}, we may want to label both named and nominal entities, which are important for other NLP tasks such as coreference resolution. 
 
 \begin{quote}
-	\label{emp:3types}
+	\label{emp:10types}
 	\small
 	$[Mark]_{PER}$ and his closest $[friend]_{PER\_N}$ $[Scarlet]_{PER}$, a cello $[player]_{PER\_N}$, joined the same music $[company]_{ORG\_N}$.
 \end{quote}
