@@ -1,25 +1,21 @@
 %
-% File acl2016.tex
+% File acl2017.tex
 %
 %% Based on the style files for ACL-2015, with some improvements
 %%  taken from the NAACL-2016 style
 %% Based on the style files for ACL-2014, which were, in turn,
-%% Based on the style files for ACL-2013, which were, in turn,
-%% Based on the style files for ACL-2012, which were, in turn,
-%% based on the style files for ACL-2011, which were, in turn, 
-%% based on the style files for ACL-2010, which were, in turn, 
-%% based on the style files for ACL-IJCNLP-2009, which were, in turn,
-%% based on the style files for EACL-2009 and IJCNLP-2008...
-
+%% based on ACL-2013, ACL-2012, ACL-2011, ACL-2010, ACL-IJCNLP-2009,
+%% EACL-2009, IJCNLP-2008...
 %% Based on the style files for EACL 2006 by 
 %%e.agirre@ehu.es or Sergi.Balari@uab.es
 %% and that of ACL 08 by Joakim Nivre and Noah Smith
 
-\documentclass[11pt]{article}
-\usepackage{acl2016}
+\documentclass[11pt,a4paper]{article}
+\usepackage[hyperref]{acl2017}
 \usepackage{times}
-\usepackage{url}
 \usepackage{latexsym}
+\usepackage{url}
+
 
 %% not part of the template
 
@@ -38,7 +34,8 @@
 \newtheorem{example}{Example}
 \algnewcommand{\LeftComment}[1]{\Statex \(\triangleright\) #1}
 
-\aclfinalcopy % Uncomment this line for the final submission
+
+%\aclfinalcopy % Uncomment this line for the final submission
 %\def\aclpaperid{***} %  Enter the acl Paper ID here
 
 %\setlength\titlebox{5cm}
@@ -49,20 +46,20 @@
 
 \newcommand\BibTeX{B{\sc ib}\TeX}
 
-%\title{Named Entity Recognition Using FOFE}
+
 \title{A FOFE-based Local Detection Approach for Named Entity Recognition and Mention Detection}
 
 \author{Mingbin Xu \and Hui Jiang \\
-  Department of Electrical Engineering and Computer Science \\
-  Lassonde School of Engineering, York University \\
-  4700 Keele Street, Toronto, Ontario, Canada\\
-  {\tt xmb@cse.yorku.ca} \and  {\tt hj@cse.yorku.ca}  
-  %\\\And
-  %Hui Jiang \\
-   %Lassonde School of Engineering, \\
-  %York University \\
-  %{\tt hj@eecs.yorku.ca} \\
- }
+	Department of Electrical Engineering and Computer Science \\
+	Lassonde School of Engineering, York University \\
+	4700 Keele Street, Toronto, Ontario, Canada\\
+	{\tt xmb@cse.yorku.ca} \and  {\tt hj@cse.yorku.ca}  
+	%\\\And
+	%Hui Jiang \\
+	%Lassonde School of Engineering, \\
+	%York University \\
+	%{\tt hj@eecs.yorku.ca} \\
+}
 
 \date{}
 
@@ -70,7 +67,7 @@
 \maketitle
 
 \begin{abstract}
-In this paper, we study a novel approach for named entity recognition (NER) and mention detection in natural language processing. Instead of treating NER as a sequence labelling problem, we propose a new local detection approach, which rely on the recent fixed-size ordinally forgetting encoding (FOFE) method to fully encode each sentence fragment and its left/right contexts into a fixed-size representation. Afterwards, a simple feedforward neural network is used to reject or predict entity label for each individual fragment. The proposed method has been evaluated in several popular NER and mention detection tasks, including the CoNLL 2003 NER task and  TAC-KBP2015 and TAC-KBP2016 Tri-lingual Entity Discovery and Linking (EDL) tasks. Our methods have yielded pretty strong performance in all of these examined tasks. This local detection approach has shown many advantages over the traditional sequence labelling  methods.
+	In this paper, we study a novel approach for named entity recognition (NER) and mention detection in natural language processing. Instead of treating NER as a sequence labelling problem, we propose a new local detection approach, which rely on the recent fixed-size ordinally forgetting encoding (FOFE) method to fully encode each sentence fragment and its left/right contexts into a fixed-size representation. Afterwards, a simple feedforward neural network is used to reject or predict entity label for each individual fragment. The proposed method has been evaluated in several popular NER and mention detection tasks, including the CoNLL 2003 NER task and  TAC-KBP2015 and TAC-KBP2016 Tri-lingual Entity Discovery and Linking (EDL) tasks. Our methods have yielded pretty strong performance in all of these examined tasks. This local detection approach has shown many advantages over the traditional sequence labelling  methods.
 \end{abstract}
 
 
@@ -147,10 +144,10 @@ we propose a novel but simple solution to NER by applying DNN on top of FOFE-bas
 This simpler approach can achieve performance very close to state-of-the-art on various NER and mention detection tasks, without using any external knowledge or feature engineering.
 
 \begin{figure*}[t]
-\centering
-\includegraphics[width=0.8\linewidth]{Figure-Diagram.png}
-\caption{Illustration of the local detection approach for NER using FOFE codes as input and a feedforward neural network as model. The window currently examines the fragment of {\it Toronto Maple Leafs}. The window will scan and scrutinize all fragments up to $K$ words. }
-\label{Fig:FOFE-NER-diagram}
+	\centering
+	\includegraphics[width=0.8\linewidth]{Figure-Diagram.png}
+	\caption{Illustration of the local detection approach for NER using FOFE codes as input and a feedforward neural network as model. The window currently examines the fragment of {\it Toronto Maple Leafs}. The window will scan and scrutinize all fragments up to $K$ words. }
+	\label{Fig:FOFE-NER-diagram}
 \end{figure*}
 
 
@@ -275,20 +272,20 @@ an $L \times D$ matrix $\bm{C}$ is constructed,  where the $j$-th row is a copy 
 Let $\bm{F}$ be an $h \times D$ convolution kernel to be learned,  where $h$ denotes the number of used feature maps. 
 An intermediate vector $\bm{v}$ of $l-h+1$ elements is generated after $\bm{f}$ sweeps $\bm{m}$. Each component in $\bm{v}$,  $v_k$,  is computed as:
 \begin{equation}
-	\label{eq:conv}
-	v_k = \sigma(Trace(\bm{F}\bm{C}[k:k+h]))
+\label{eq:conv}
+v_k = \sigma(Trace(\bm{F}\bm{C}[k:k+h]))
 \end{equation}
 where $\sigma$ is either sigmoid or ReLU.
 % which is defined in the previous sub-section.
 The output  $y$ of this kernel is given by:
 \begin{equation}
-	\label{eq:max-pool}
-	y = \max(v_1, v_2, ..., v_{l-h+1})
+\label{eq:max-pool}
+y = \max(v_1, v_2, ..., v_{l-h+1})
 \end{equation}
 
 If there are $N$ groups of kernels, each of which has $n_1$, $n_2$, $n_3$, ... , ${n_{|N|}}$ kernels respectively,
 following Eqs. (\ref{eq:conv}) and (\ref{eq:max-pool}), the final representation from the character CNN for this word or fragment is a vector of length $\sum_{i=1}^{|N|} n_{i}$.
-	
+
 \section{FOFE-based Local Detection for NER}
 
 As described above, our FOFE-based local detection approach for NER, called  \textbf{FOFE-NER} hereafter, 
@@ -318,7 +315,7 @@ In this work, we use FOFE to explore both word-level and character-level feature
 \textbf{FOFE-NER} generates several word-level features for each fragment hypothesis and its left and right contexts as follows:
 
 \begin{itemize}
-%	\setlength\itemsep{0.5em}
+	%	\setlength\itemsep{0.5em}
 	\item Bag-of-word vector of the fragment.  For the example in Figure \ref{Fig:FOFE-NER-diagram}, it is a bag-of-word vector of 'Toronto', 'Maple' and 'Leafs'. 
 	\item FOFE code for left context including the fragment. In Figure \ref{Fig:FOFE-NER-diagram}, it is the FOFE code of the word sequence of ``{\it ... puck from space for the Toronto Maple Leafs  }".
 	\item FOFE code for left context excluding the fragment. In Figure \ref{Fig:FOFE-NER-diagram}, it is the FOFE code of the word sequence of ``{\it ... puck from space for the}".	
@@ -344,7 +341,7 @@ On top of the above word-level features, we also augment character-level feature
 \begin{itemize}
 	\item Left-to-right FOFE code of the character sequence of the underlying fragment. That is the FOFE code of the sequence, ``{\it  'T', 'o', ..., 'f' , 's' }''.
 	
-\item Right-to-left FOFE code of the character sequence of the underlying fragment. That is the FOFE code of the sequence, ``{\it 's' ,  'f' , ..., 'o',  'T' }''.
+	\item Right-to-left FOFE code of the character sequence of the underlying fragment. That is the FOFE code of the sequence, ``{\it 's' ,  'f' , ..., 'o',  'T' }''.
 \end{itemize}
 
 These case-sensitive character FOFE codes are also projected by another character embedding matrix, which is randomly initialized and fine-tuned during model training. 
@@ -420,7 +417,7 @@ Occasionally, some partially-overlapped or nested fragments may occur in the abo
 %One of the three strategies may apply in order to produce a collection of non-recursive, non-overlapping, non-NONE labels: 
 \begin{enumerate}
 	\item {\it highest-first}: We check every word in a sentence. If it is contained by more than one fragment in the pruned results, we only keep the one with the maximum NN score and discard the rest. 
-   \item {\it longest-first}: We check every word in a sentence. If it is contained by more than one fragment in the pruned results, we only keep the longest fragment and discard the rest. 
+	\item {\it longest-first}: We check every word in a sentence. If it is contained by more than one fragment in the pruned results, we only keep the longest fragment and discard the rest. 
 \end{enumerate}
 
 Either of these strategies leads to a collection of non-nested, non-overlapping, non-NONE entity labels.
@@ -543,16 +540,16 @@ In \cite{chiu2016named}, a slightly better performance (91.62 in $F_1$ score) is
 		\multicolumn{3}{|c|}{FEATURE} & P & R & F1\\
 		\hline\hline
 		\multirow{6}{*}{word-level} & 
-		     \multirow{3}{*}{case-insensitive} &
-			  context FOFE incl. focus word(s) & 86.64 & 77.04 & 81.56 \\
+		\multirow{3}{*}{case-insensitive} &
+		context FOFE incl. focus word(s) & 86.64 & 77.04 & 81.56 \\
 		& &context FOFE excl. focus word(s) & 53.98 & 42.17 & 47.35  \\
 		& & BoW of focus word(s) & 82.92 & 71.85 & 76.99  \\ \cline{2-6} 
-		   & \multirow{3}{*}{case-sensitive} & 
-			  context FOFE incl. focus word(s) & 88.88 & 79.83 &84.12  \\
+		& \multirow{3}{*}{case-sensitive} & 
+		context FOFE incl. focus word(s) & 88.88 & 79.83 &84.12  \\
 		& &context FOFE excl. focus word(s) & 50.91 & 42.46 & 46.30  \\
 		& & BoW of focus word(s) & 85.41 & 74.95 & 79.84  \\ \hline
 		\multirow{2}{*}{char-level} &
-		   \multicolumn{2}{l|}{Char FOFE of focus word(s)} & 67.67 & 52.78 & 59.31  \\
+		\multicolumn{2}{l|}{Char FOFE of focus word(s)} & 67.67 & 52.78 & 59.31  \\
 		& \multicolumn{2}{l|}{Char CNN of focus word(s)} & 78.93 & 69.49 & 73.91 \\ \hline
 		\multicolumn{3}{|l|}{all case-insensitive features} &  90.11 & 82.75 &  86.28  \\ 
 		\multicolumn{3}{|l|}{all case-sensitive features} & 90.26 & 86.63 & 88.41 \\ 
@@ -571,7 +568,7 @@ In \cite{chiu2016named}, a slightly better performance (91.62 in $F_1$ score) is
 	\centering
 	\begin{tabular}{|l|lllll|l|}
 		\hline
-		     & word & char & gaz & cap & pos & F1 \\
+		& word & char & gaz & cap & pos & F1 \\
 		\hline\hline
 		\cite{collobert2011natural} & \cmark & \xmark & \cmark & \cmark & \xmark & 89.59  \\
 		\cite{huang2015bidirectional} &\cmark & \cmark & \cmark & \cmark & \cmark & 90.10 \\
@@ -600,7 +597,7 @@ mentions for those NIL entities that do not have
 corresponding KB entries.
 
 \begin{table}
-	\resizebox{\linewidth}{!}{
+\resizebox{\linewidth}{!}{
 	\centering
 	\begin{tabular}{|l|lll|lll|}
 		\hline
@@ -661,10 +658,10 @@ Each hyper-parameter typically has 3 to 5 options during the grid search.
 
 Here we summarize the set of hyper-parameters used in our experiments:
 \begin{itemize}
-\item \textbf{KBP series}:
+	\item \textbf{KBP series}:
 	i) {\it Number of epochs}: we normally run 256 epochs if the iFLYTEK data is not used in training. Otherwise, we only run 64 epochs. ii) {\it Learning rate}: it is initially set to 0.128 and it is gradually decreased by multiplying a number at the end of every epoch so that  it reaches 1/16 of the initial value at the end of the whole training process; iii) {\it Dropout rate}: it is initially set to 0.4 and it is slowly decreased in the training until it reaches 0.1 at the end. iv) {\it Network structure}: we use a feedforward fully-connected structure of 3 hidden layers, each of which has 512 hidden nodes. The ReLU activation function is used. The network weights are randomly initialized based on a uniform distribution between $-\sqrt{\frac{6}{N_i + N_o}}$  and $\sqrt{\frac{6}{N_i + N_o}}$ \cite{glorot2011deep}. v) {\it Embedding matrices}: 
 	case-sensitive and case-insensitive word embeddings of 128 dimensions for three languages are pre-trained from English Gigaword, Chinese Wikipeida and Spanish Gigaword using the {\em word2vec} tool \cite{mikolov2013distributed}. Character embeddings have 64 dimensionare and they are randomly initialized. vi) We normally split the available training data into training, validation and evaluation sets in a ratio of 90:5:5.
-\item \textbf{CoNLL2003}:
+	\item \textbf{CoNLL2003}:
 	Similar to \textbf{KBP series} except that i) Word embeddings are of 256 dimensions and trained from Reuters RC1. ii) 128 epochs are run instead.
 	iii) We stick to the official data train-dev-test partition.  
 \end{itemize}
@@ -681,10 +678,10 @@ In Table \ref{tbl:kbp2016-EDL1}, we have summarized the official English entity 
 	\begin{tabular}{|c|ll|l|}
 		\hline
 		training data  &  P   &  R  &  $F_1$ \\ \hline \hline
-			KBP2015 &  0.818 & 0.600 & 0.693 \\
-			KBP2015 + WIKI  &   0.859 & 0.601 & 0.707 \\	
-			KBP2015 + iFLYTEK &  0.830 & 0.652 & \bf 0.731 \\
-      \hline
+		KBP2015 &  0.818 & 0.600 & 0.693 \\
+		KBP2015 + WIKI  &   0.859 & 0.601 & 0.707 \\	
+		KBP2015 + iFLYTEK &  0.830 & 0.652 & \bf 0.731 \\
+		\hline
 	\end{tabular}
 	\caption{Entity discovery performance (English only) in KBP2016 EDL1 evaluation window is shown as a comparison of three models trained by different combinations of training data sets. }
 	\label{tbl:kbp2016-EDL1}	
@@ -699,23 +696,23 @@ After fixing some system bugs, we have used both the KBP2015 data and iFLYTEK da
 	\centering
 	\begin{tabular}{|l|lll|lll|lll|}
 		\hline
-		 \multirow{2}{*}{LANG}  &
-			\multicolumn{3}{c|}{NAME} & \multicolumn{3}{c|}{NOMINAL} & \multicolumn{3}{c|}{OVERALL} \\
-		 \ & P & R & F1 & P & R & F1 & P & R & F1 \\
+		\multirow{2}{*}{LANG}  &
+		\multicolumn{3}{c|}{NAME} & \multicolumn{3}{c|}{NOMINAL} & \multicolumn{3}{c|}{OVERALL} \\
+		\ & P & R & F1 & P & R & F1 & P & R & F1 \\
 		\hline \hline
 		& \multicolumn{9}{c|}{RUN1 (our official ED result in KBP2016 EDL2)} \\ 
 		\hline
-		  	ENG & 0.898 & 0.789 & 0.840 & 0.554 & 0.336 & 0.418 & 0.836 & 0.680 & 0.750 \\
-		   CMN & 0.848 & 0.702 & 0.768 & 0.414 & 0.258 & 0.318 & 0.789 & 0.625 & 0.698 \\
-		   SPA & 0.835 & 0.778 & 0.806 & 0.000 & 0.000 & 0.000 & 0.835 & 0.602 & 0.700 \\
-		   ALL & 0.893 & 0.759 & 0.821 & 0.541 & 0.315 & 0.398 & 0.819 & 0.639 & {\bf 0.718} \\
+		ENG & 0.898 & 0.789 & 0.840 & 0.554 & 0.336 & 0.418 & 0.836 & 0.680 & 0.750 \\
+		CMN & 0.848 & 0.702 & 0.768 & 0.414 & 0.258 & 0.318 & 0.789 & 0.625 & 0.698 \\
+		SPA & 0.835 & 0.778 & 0.806 & 0.000 & 0.000 & 0.000 & 0.835 & 0.602 & 0.700 \\
+		ALL & 0.893 & 0.759 & 0.821 & 0.541 & 0.315 & 0.398 & 0.819 & 0.639 & {\bf 0.718} \\
 		\hline
 		& \multicolumn{9}{c|}{RUN3 (system fusion of RUN1 with the best system in \cite{kbp2016iflytek})} \\
 		\hline
-		 ENG & 0.857	& 0.876 & 0.866 & 0.551 & 0.373 & 0.444 & 0.804 & 0.755 & 0.779 \\
-		 CMN & 0.790 & 0.839 & 0.814 & 0.425 & 0.380 & 0.401 & 0.735 & 0.760 & 0.747 \\
-		 SPA & 0.790 & 0.877 & 0.831 & 0.000 & 0.000 & 0.000 & 0.790 & 0.678 & 0.730 \\
-		 ALL & 0.893 & 0.759 & 0.821 & 0.541 & 0.315 & 0.398 & 0.774 & {\bf 0.735} & {\bf 0.754} \\
+		ENG & 0.857	& 0.876 & 0.866 & 0.551 & 0.373 & 0.444 & 0.804 & 0.755 & 0.779 \\
+		CMN & 0.790 & 0.839 & 0.814 & 0.425 & 0.380 & 0.401 & 0.735 & 0.760 & 0.747 \\
+		SPA & 0.790 & 0.877 & 0.831 & 0.000 & 0.000 & 0.000 & 0.790 & 0.678 & 0.730 \\
+		ALL & 0.893 & 0.759 & 0.821 & 0.541 & 0.315 & 0.398 & 0.774 & {\bf 0.735} & {\bf 0.754} \\
 		\hline 
 	\end{tabular}
 	\caption{Official entity discovery performance of our methods on KBP2016 trilingual EDL track.}
@@ -729,7 +726,7 @@ In this paper, we have proposed a new local detection based approach, which rely
 Obviously, this FOFE-based local detection approach can be easily extended to tackle many other NLP tasks, such as chunking, POS tagging, entity linking, semantic parsing. We will report our progresses in these new tasks in the future.  
 
 \bibliography{fofe4ner}
-\bibliographystyle{acl2016}
-
-
+\bibliographystyle{acl_natbib}
+	
+	
 \end{document}
