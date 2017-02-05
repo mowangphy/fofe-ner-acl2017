@@ -67,22 +67,24 @@
 \maketitle
 
 \begin{abstract}
-	In this paper, we study a novel approach for named entity recognition (NER) and mention detection in natural language processing. Instead of treating NER as a sequence labelling problem, we propose a new local detection approach, which rely on the recent fixed-size ordinally forgetting encoding (FOFE) method to fully encode each sentence fragment and its left/right contexts into a fixed-size representation. Afterwards, a simple feedforward neural network is used to reject or predict entity label for each individual fragment. The proposed method has been evaluated in several popular NER and mention detection tasks, including CoNLL 2003 NER task and  TAC-KBP2015 and TAC-KBP2016 Tri-lingual Entity Discovery and Linking (EDL) tasks. Our methods have yielded pretty strong performance in all of these examined tasks. This local detection approach has shown many advantages over the traditional sequence labelling  methods.
+	In this paper, we study a novel approach for named entity recognition (NER) and mention detection in natural language processing. Instead of treating NER as a sequence labeling problem, we propose a new local detection approach, which rely on the recent fixed-size ordinally forgetting encoding (FOFE) method to fully encode each sentence fragment and its left/right contexts into a fixed-size representation. Afterwards, a simple feedforward neural network (FFNN) is used to reject or predict entity label for each individual fragment. The proposed method has been evaluated in several popular NER and mention detection tasks, including CoNLL 2003 NER task and  TAC-KBP2015 and TAC-KBP2016 Tri-lingual Entity Discovery and Linking (EDL) tasks. Our methods have yielded pretty strong performance in all of these examined tasks. This local detection approach has shown many advantages over the traditional sequence labeling  methods.
 \end{abstract}
 
 
 \section{Introduction}
 
-Natural language processing (NLP) plays an important role in artificial intelligence, which has been extensively studied for many decades. Conventional NLP techniques include the rule-based symbolic approaches widely used about two decades ago, and the more recent statistic approaches that rely on feature engineering and relatively simple statistical models, such as conditional random fields (CRFs). In the recent years, deep learning approach has achieved huge successes in many applications, ranging from speech recognition to image classification. It is drawing more and more attention in the NLP community. 
+Natural language processing (NLP) plays an important role in artificial intelligence, which has been extensively studied for many decades. Conventional NLP techniques include the rule-based symbolic approaches widely used about two decades ago, and the more recent statistic approaches that rely on feature engineering and statistical models. In the recent years, deep learning approach has achieved huge successes in many applications, ranging from speech recognition to image classification. It is drawing increasing attention in the NLP community. 
 
-In this paper, we are interested in a fundamental problem in NLP, namely named entity recognition (NER) and mention detection. NER and mention detection is a very challenging task in NLP, laying the foundation of almost every NLP application.
-NER and mention detection is a task of identifying entities (named and/or nominal) from raw text, and classifying  the detected entities into one of pre-defined categories such as person, organization, location, etc. Some tasks focus on named entities only, for example, 
-\begin{quote}
-	\label{emp:4types}
-	\small
-	${[S.E.C.]}_{ORG}$ chief ${[Mary\ Shapiro]}_{PER}$ left ${[Washington]}_{LOC}$ in December .
-\end{quote}
-while the others may need to detect not only named entities but also nominal mentions, which are important for other NLP tasks such as coreference resolution
+In this paper, we are interested in a fundamental problem in NLP, namely named entity recognition (NER) and mention detection (MD). NER and MD is a very challenging task in NLP, laying the foundation of almost every NLP application.
+NER and MD is a task of identifying entities (named and/or nominal) from raw text, and classifying the detected entities into one of the pre-defined categories such as person, organization, location, etc. Some tasks focus on named entities only, 
+%for example, 
+%\begin{quote}
+%	\label{emp:4types}
+%	\small
+%	${[S.E.C.]}_{ORG}$ chief ${[Mary\ Shapiro]}_{PER}$ left ${[Washington]}_{LOC}$ in December .
+%\end{quote}
+while the others also detects nominal mentions, for example
+%which are important for other NLP tasks such as co-reference resolution
 \begin{quote}
 	\label{emp:10types}
 	\small
@@ -96,15 +98,15 @@ Moreover, nested mentions may need to be extracted too. For example,
 \end{quote}
 where {\it Toronto} is a LOC entity, embedded in another longer ORG entity {\it University of Toronto}.
 
-Similar to many other NLP problems, NER and mention detection is normally formulated as a sequence labelling problem, where a tag is sequentially assigned to each word in the input sentence. Depending on how these tags are defined, we may solve many NLP problems, such as chunking, part-of-speech (POS) tagging, NER, semantic parsing and so on. The sequence labelling has been extensively studied in the NLP community. The core problem in sequence labelling is to model the conditional probability of an output sequence given an arbitrary input sequence. Many hand-crafted features are combined with statistical models, such as conditional random fields (CRFs), to compute conditional probabilities. More recently, some popular neural networks, including convolutional neural networks (CNNs) and recurrent neural networks (RNNs), are proposed to solve these sequence modeling problems under the popular sequence to sequence modelling framework. The relevant work will be briefly reviewed in Section \ref{sec_related_work}. 
-In the test stage, given any input sequence, the learned models compute the conditional probabilities and the output sequence is generated by the well-known Viterbi decoding algorithm. 
+Similar to many other NLP problems, NER and MD is normally formulated as a sequence labeling problem, where a tag is sequentially assigned to each word in the input sentence. It has been extensively studied in the NLP community. The core problem in sequence labeling is to model the conditional probability of an output sequence given an arbitrary input sequence. Many hand-crafted features are combined with statistical models, such as conditional random fields (CRFs), to compute conditional probabilities. More recently, some popular neural networks, including convolutional neural networks (CNNs) and recurrent neural networks (RNNs), are proposed to solve these sequence modeling problems under the popular sequence to sequence modeling framework. The relevant work will be briefly reviewed in Section \ref{sec_related_work}. 
+In the test stage, the learned models compute the conditional probabilities and the output sequence is generated by the well-known Viterbi decoding algorithm. 
 
-In this paper, we propose a novel local detection approach of solving NER and mention detection problems. The idea can be easily extended to many other sequence labelling problems in NLP.  Instead of globally modelling the whole sequence in training and jointly decode the entire output sequence in test, 
-our method examines all word segments (up to a certain length) in a sentence. At each time, a word segment will be examined individually based on the underlying segment itself and its left and right contexts in the sentence to determine whether this word segment is a valid named entity. If yes, the model will output the category for this entity as well. Otherwise, the segment is rejected and no NER tag is generated for this segment.
-This approach more or less conforms to the way human is resolving an NER problem. Given any word fragment and its contexts in a sentence or paragraph, people normally can pretty accurately determine whether this word segment is a named entity or not. People rarely need to conduct a global decoding over the entire sentence to make such a decision. 
+In this paper, we propose a novel local detection approach of solving NER and MD problems. The idea can be easily extended to many other sequence labeling problems, such as chunking, part-of-speech tagging (POS). Instead of globally modeling the whole sequence in training and jointly decode the entire output sequence in test, 
+our method examines all word segments (up to a certain length) in a sentence. A word segment will be examined individually based on the underlying segment itself and its left and right contexts in the sentence so as to determine whether this word segment is a valid named entity and the corresponding label if yes. 
+This approach conforms to the way human resolves an NER problem. Given any word fragment and its contexts in a sentence or paragraph, people normally can accurately determine whether this word segment is a named entity or not. People rarely conduct a global decoding over the entire sentence to make such a decision. 
 The key to making an accurate local decision for each individual fragment is to have a full access to the fragment itself as well as its complete contextual information. 
 The main pitfall to implement this idea is that we can not easily encode the segment and its contexts in models since they are of varying lengths in natural languages. Many feature engineering techniques have been proposed but all of these methods will inevitably lead to information loss. 
-In this work, we propose to use a recent fixed-size encoding method, namely fixed-size ordinally forgetting encoding (FOFE) \cite{zhang2015fixed}, to solve this problem.  The FOFE method is a simple recursively encoding method for any variable-length sequence. FOFE theoretically guarantees to (almost) uniquely and losslessly encode any variable-length sequence into a fix-size representation. Here, the left and the right contexts for each word segment are encoded by FOFE method, and then a simple feedforward neural network can be trained to make a precise recognition for each individual word segment based on the fixed-size presentation of the contextual information. This FOFE-based local detection approach is more appealing to NER and mention detection. First of all, we may be able to get rid of feature engineering in these NLP problems since FOFE only relies on a single forgetting factor to fully encode any sequence. Second, we can easily handle some difficult problems in NER, e.g. nested entities, under this local detection framework with little modification. Next, this local detection approach can make better use of partially-labelled data available from many application scenarios. Sequence labelling model requires all entities in a sentence to be labelled. It is always expensive to fully label all sentences. If only some (not all) entities are labelled, it is not very effective to learn a sequence labelling model. However, it is quite different for the local detection approach. Every single labeled entity, along with its left and right contexts, may be used to learn the model. At last, due to the flexible encoding strategy of FOFE, simple neural networks, such as multilayer perceptrons, are sufficient for recognition. These models are much faster to train and easier to tune. In the test stage, all possible word segments from a sentence may be packed into a mini-batch, which can be jointly recognized in parallel on GPUs. This leads to a very fast decoding process as well.
+In this work, we propose to use a recent fixed-size encoding method, namely fixed-size ordinally forgetting encoding (FOFE) \cite{zhang2015fixed}, to solve this problem.  The FOFE method is a simple recursive encoding method. FOFE theoretically guarantees (almost) unique and lossless encodding of any variable-length sequence. The left and the right contexts for each word segment are encoded by FOFE method, and then a simple neural network can be trained to make a precise recognition for each individual word segment based on the fixed-size presentation of the contextual information. This FOFE-based local detection approach is more appealing to NER and MD. Firstly, feature engineering is almost eliminated. FOFE only relies on a single forgetting factor to encode any sequence. Secondly, under this local detection framework, nested mention is handled with little modification. Next, this local detection approach makes better use of partially-labeled data available from many application scenarios. Sequence labeling model requires all entities in a sentence to be labeled. If only some (not all) entities are labeled, it is not very effective to learn a sequence labeling model. However, every single labeled entity, along with its left and right contexts, may be used to learn the proposed model. At last, due to the flexible encoding strategy of FOFE, simple neural networks, such as multilayer perceptrons, are sufficient for recognition. These models are much faster to train and easier to tune. In the test stage, all possible word segments from a sentence may be packed into a mini-batch, jointly recognized in parallel on GPUs. This leads to a very fast decoding process as well.
 
 In this paper, we have applied this FOFE-based local detection approach to several popular NER and mention detection tasks, including the CoNLL 2003 NER task and 
 TAC-KBP2015 and TAC-KBP2016 Tri-lingual Entity Discovery and Linking (EDL) tasks.
@@ -141,7 +143,7 @@ This simpler approach can achieve performance very close to state-of-the-art on 
 \begin{figure*}[t]
 	\centering
 	\includegraphics[width=0.9\linewidth]{figure-diagram-v2}
-	\caption{Illustration of the local detection approach for NER using FOFE codes as input and a feedforward neural network as model. The window currently examines the fragment of {\it Toronto Maple Leafs}. The window will scan and scrutinize all fragments up to $K$ words. }
+	\caption{Illustration of the local detection approach for NER using FOFE codes as input and an FFNN as model. The window currently examines the fragment of {\it Toronto Maple Leafs}. The window will scan and scrutinize all fragments up to $K$ words. }
 	\label{Fig:FOFE-NER-diagram}
 \end{figure*}
 
@@ -152,13 +154,10 @@ In this section, we will briefly review some background techniques, which are im
 
 \subsection{Deep Feedforward Neural Networks}
 
-It is well known that feedforward neural network is a universal approximator under certain conditions \cite{hornik1991approximation}.
-A feedforward neural network is a weighted graph with a layered architecture.
-Each layer is composed of several nodes, including a bias node whose value is always 1.
-Successive layers are fully connected. The nodes in each layer
-take as input the values of the nodes in the previous layer, and
-compute a function of those values through the connection weights as its
-output.
+It is well known that  neural network is a universal approximator under certain conditions \cite{hornik1991approximation}.
+A feedforward neural network (FFNN) is a weighted graph with a layered architecture.
+Each layer is composed of several nodes.
+Successive layers are fully connected. Each node applies a function on weighted sum of the lower layer.
 
 Formally, let $x_{n,j}$ denote the value of the $j$-th node in the
 $n$-th layer and $W^n_{i,j}$ denote the weight of the connection from
@@ -169,11 +168,13 @@ z_{n+1,j} = \sum_i W^n_{i,j} x_{n,i}
 \begin{equation}
 x_{n+1,j} = \sigma\left(z_{n+1,j}\right)
 \end{equation}
-where $\sigma$ is the activation function, generally chosen to be sigmoid:
-\begin{equation}
-\sigma(x) = \frac{1}{1 + e^{-x}}
-\end{equation}
-or rectified linear unit (ReLU):
+where $\sigma$ is the activation function, usually chosen to be 
+%sigmoid:
+%\begin{equation}
+%\sigma(x) = \frac{1}{1 + e^{-x}}
+%\end{equation}
+%or 
+rectified linear unit (ReLU):
 \begin{equation}
 \sigma(x) = \max(0, x).
 \end{equation}
@@ -186,7 +187,7 @@ An NN can learn by adjusting its weights in a process called back-propagation.
 Suppose that we have already calculated the outputs given by an NN for any input.
 Let $E(y,t)$ be an error metric that measures how incorrect the output
 $y$ is with respect to the expected target output $t$. For each weight
-in each layer, we may calculate:
+in NN, we may calculate:
 \begin{equation}
 \frac{\partial E}{\partial W^n_{i,j}} = \frac{\partial E}{\partial
 	\sigma} \frac{\partial \sigma}{\partial z_{i+1,j}} \frac{\partial
@@ -204,16 +205,16 @@ The learned NN may be used to generalize and extrapolate to new inputs that have
 
 \subsection{Fixed-size Ordinally Forgetting Encoding}
 
-Feedforward neural network is a fast and powerful computation model. 
-However, it requires to use the fixed-size inputs and 
-lacks of the ability to capture long-term dependency in sequences. 
+FFNN is a powerful computation model. 
+However, it requires fixed-size inputs and 
+lacks the ability of capturing long-term dependency. 
 Because most NLP problems involves variable-length sequences of words, 
-RNNs/LSTMs are more popular than regular feedforward NNs in dealing with these problems. 
-The simple encoding method, called Fixed-size Ordinally Forgetting Encoding (FOFE), 
-originally proposed in \cite{zhang2015fixed}, nicely overcomes the limitations of DNNs because it 
-can uniquely encode a variable-length sequence of words into a fixed-size representation without lossing information. 
+RNNs/LSTMs are more popular than FFNNs in dealing with these problems. 
+The Fixed-size Ordinally Forgetting Encoding (FOFE), 
+originally proposed in \cite{zhang2015fixed}, nicely overcomes the limitations of FFNNs because it 
+can uniquely and losslessly encode a variable-length sequence of words into a fixed-size representation. 
 
-Give a vocabulary $V$ consisting of $|V|$ distinct words, each word can be represented by a one-hot vector. 
+Give a vocabulary $V$, each word can be represented by a one-hot vector. 
 FOFE mimics bag-of-words (BOW) but incorporates a forgetting factor to capture positional information.
 It encodes any sequence of variable length composed by words in $V$. 
 Let $S = {w_1, w_2, w_3, ... , w_T}$ denote a sequence of $T$ words from $V$, 
@@ -226,39 +227,41 @@ The FOFE of each partial sequence $\bm{z_t}$ from the first word to the $t$-th w
 \alpha \cdot \bm{z_{t - 1}} + \bm{e_t}, & \text{otherwise}
 \end{cases}  \label{eq_FOFE_formula}
 \end{equation}
-where the constant $\alpha$ is called forgetting factor, and it is chosen picked between $0$ and $1$ exclusively. 
+where the constant $\alpha$ is called forgetting factor, and it is picked between $0$ and $1$ exclusively. 
 Obviously, the size of $\bm{z_t}$ is $|V|$, and it is irrelevant to the length of original sequence, $T$.
 
-Let us use a simple example to illustrate how to use FOFE to decode a sequence. Assume that we 
-have three words in our vocabulary, e.g. A, B, C, 
+Here's an example. Assume that we have three words in our vocabulary, e.g. A, B, C, 
 whose one-hot representations are $[1, 0, 0]$, $[0, 1, 0]$ and $[0, 0, 1]$ respectively. 
-When calculating from left to right, the FOFE for the sequence "ABC" is $[{\alpha}^2, {\alpha}, 1]$， 
-and that of "ABCBC" is $[{\alpha}^4, {\alpha} + {\alpha}^3, 1 + {\alpha}^2]$.
+When calculating from left to right, the FOFE for the sequence 
+%"ABC" is $[{\alpha}^2, {\alpha}, 1]$， 
+%and that of 
+"ABCBC" is $[{\alpha}^4, {\alpha} + {\alpha}^3, 1 + {\alpha}^2]$.
 
-According to \cite{zhang2015fixed}, the word sequences can be unequivocally recovered from their FOFE representations.
-The uniqueness of FOFE representation is theoretically guaranteed by the following two theorems: 
-\begin{theorem}
-	If the forgetting factor $\alpha$ satisfies $0 < \alpha \leq 0.5$, FOFE is unique for any countable vocabulary $V$ and any finite value $T$.
-\end{theorem}
-\begin{theorem}
-	For $0.5 < \alpha < 1 $, given any finite value $T$ and any countable vocabulary $V$,
-	FOFE is almost unique everywhere, except only a finite set of countable choices of $\alpha$.
-\end{theorem}
-Though in theory uniqueness is not guaranteed when $\alpha$ is chosen from $0.5$ to $1$, 
-in practice the chance of hitting such scenarios is extremely slim, realistically almost impossible due to quantization errors in the system. 
+The word sequences can be unequivocally recovered from their FOFE representations \cite{zhang2015fixed}.
+The uniqueness of FOFE representation is theoretically guaranteed.
+%by the following two theorems: 
+%\begin{theorem}
+%	If the forgetting factor $\alpha$ satisfies $0 < \alpha \leq 0.5$, FOFE is unique for any countable vocabulary $V$ and any finite value $T$.
+%\end{theorem}
+%\begin{theorem}
+%	For $0.5 < \alpha < 1 $, given any finite value $T$ and any countable vocabulary $V$,
+%	FOFE is almost unique everywhere, except only a finite set of countable choices of $\alpha$.
+%\end{theorem}
+%Though in theory uniqueness is not guaranteed when $\alpha$ is chosen from $0.5$ to $1$, 
+%in practice the chance of hitting such scenarios is extremely slim, almost impossible due to quantization errors in the system. 
 Furthermore, in natural languages, normally a word does not appear repeatedly within a near context. 
-Simply put, FOFE is capable of uniquely encoding any sequence of arbitrary length, serving as a fixed-size but theoretically lossless representation for any sequence.
+%Simply put, FOFE is capable of uniquely encoding any sequence of arbitrary length, serving as a fixed-size but theoretically lossless representation for any sequence.
 
 
 \subsection {Character-level Models in NLP}
 \label{subsec_char_feature}
 
-Recently, as shown in \cite{kim2015character}, it may be beneficial to model morphology in the character level since this may provide some additional advantages in dealing with unknown or out-of-vocabulary (OOVs) words in a language.
+As shown in \cite{kim2015character} recently, it may be beneficial to model morphology in the character level since this may provide some additional advantages in dealing with unknown or out-of-vocabulary (OOVs) words in a language.
 
-The above FOFE method can be easily extended to model character-level feature in NLP. Any word, phrase or fragment can be viewed as a sequence of characters. In this way, based on a pre-defined set of all possible characters, we may apply the same FOFE method to encode the sequence of characters. This always leads to a fixed-size representation, irrelevant to the number of characters in question. 
+The above FOFE method can be easily extended to model character-level feature in NLP. Any word, phrase or fragment can be viewed as a sequence of characters. Based on a pre-defined set of all possible characters, we may apply the same FOFE method to encode the sequence of characters. This always leads to a fixed-size representation, irrelevant to the number of characters in question. 
 For example, a word fragment of ``iFLYTEK'' may be viewed as a 
 sequence of seven characters: `i', `F', `L', `Y', `T', `E', `K'.
-The FOFE codes of  this type of character sequences are always fixed-sized and they can be directly fed to a feedforward neural network for  morphology  modelling. 
+The FOFE codes of character sequences are always fixed-sized and they can be directly fed to an FFNN for  morphology  modeling. 
 
 In the literature, convolutional neural networks (CNNs) have been widely used as character-level models in NLP \cite{kim2015character}. 
 Let $C$ denote the set of possible characters, and $D$ denote the dimensionality of character embeddings.
@@ -286,7 +289,7 @@ following Eqs. (\ref{eq:conv}) and (\ref{eq:max-pool}), the final representation
 As described above, our FOFE-based local detection approach for NER, called  \textbf{FOFE-NER} hereafter, 
 is motivated by the way how human actually infers whether a word segment in text is an entity or mention, where  
 the entity types of the other entities in the same sentence is not a must.
-Particularly, the dependency between adjacent entities is fairly weak in NER problems. 
+Particularly, the dependency between adjacent entities is fairly weak in NER. 
 Whether a fragment is an entity or not, and what class it may belong to, largely depend on
 the internal structure of the fragment itself as well as the left and right contexts  in which it appears. 
 To a large extent, the meaning and spelling of the underlying fragment 
@@ -296,7 +299,7 @@ when it involves multi-sense words/phrases or out-of-vocabulary (OOV) words.
 %The emergence of unsupervisedly-trained word vectors facilitates dense word representation.
 %Meanwhile, state-of-the-art systems resort to LSTM for its infinite memorization ability on context.
 
-As shown in Figure \ref{Fig:FOFE-NER-diagram}, our proposed \textbf{FOFE-NER} method will examine all possible fragments in text (up to a certain length) one by one. For each fragment, it uses the FOFE method to fully encode the underlying fragment itself, its left context and right context into some fixed-size representations, which are in turn fed to a multi-layer feedforward neural network to predict whether the current fragment is not a valid entity mention ({\it NONE}), or its correct entity type ({\it PER}, {\it LOC}, {\it ORG} and so on). This method is appealing because the FOFE codes serves as a theoretically lossless representation of the hypothesis and its full contexts and the multi-layer neural networks are used as a universal approximator to map from text to the entity labels. 
+As shown in Figure \ref{Fig:FOFE-NER-diagram}, our proposed \textbf{FOFE-NER} method will examine all possible fragments in text (up to a certain length) one by one. For each fragment, it uses the FOFE method to fully encode the underlying fragment itself, its left context and right context into some fixed-size representations, which are in turn fed to an FFNN to predict whether the current fragment is not a valid entity mention ({\it NONE}), or its correct entity type ({\it PER}, {\it LOC}, {\it ORG} and so on). This method is appealing because the FOFE codes serves as a theoretically lossless representation of the hypothesis and its full contexts. FFNN is used as a universal approximator to map from text to the entity labels. 
 
 %FOFE is able to carry the same amount of information as LSTM does
 %and it is much more flexible under this local detection framework. 
@@ -417,7 +420,7 @@ Occasionally, some partially-overlapped or nested fragments may occur in the abo
 
 Either of these strategies leads to a collection of non-nested, non-overlapping, non-NONE entity labels.
 
-In some tasks, it may  require to label all nested entities. This has imposed a big challenge to the sequence labelling methods. However, the above post-processing can be slightly modified to generate nested entities' labels. In this case, we first run either {\it highest-first} or {\it longest-first} to generate the first round result. For every entity survived in this round, we will recursively run either {\it highest-first} or {\it longest-first} on all entities in the original set, which are completely contained by it. This will generate more prediction results. This process may continue to allow any levels of nesting. For example, for a sentence of ``$w_1$  $w_2$ $w_3$ $w_4$ $w_5$'', 
+In some tasks, it may  require to label all nested entities. This has imposed a big challenge to the sequence labeling methods. However, the above post-processing can be slightly modified to generate nested entities' labels. In this case, we first run either {\it highest-first} or {\it longest-first} to generate the first round result. For every entity survived in this round, we will recursively run either {\it highest-first} or {\it longest-first} on all entities in the original set, which are completely contained by it. This will generate more prediction results. This process may continue to allow any levels of nesting. For example, for a sentence of ``$w_1$  $w_2$ $w_3$ $w_4$ $w_5$'', 
 if the model first generates the prediction results  after the global pruning, as  [``$w_2 w_3$'', PER, 0.7], [``$w_3 w_4$'', LOC, 0.8], [``$w_1 w_2 w_3 w_4$'', ORG, 0.9], if we choose to run {\it highest-first}, it will generate the first entity label as [``$w_1 w_2 w_3 w_4$'', ORG, 0.9]. Secondly, we will run {\it highest-first} on the two fragments that are completely contained by the first one, i.e.,  [``$w_2 w_3$'', PER, 0.7], [``$w_3 w_4$'', LOC, 0.8], then we will generate the second nested entity label as [``$w_3 w_4$'', LOC, 0.8].
 Fortunately, in any real NER and mention detection tasks, it is pretty rare to have overlapped predictions in the NN outputs. Therefore, the extra expense to run this recursive post-processing method is minimal. 
 
@@ -517,16 +520,11 @@ Fortunately, in any real NER and mention detection tasks, it is pretty rare to h
 
 \section{Experiments}
 
-In this section, we will evaluate the effectiveness of our proposed methods on several popular NER and mention detection tasks, including the CoNLL 2003 NER task and 
+In this section, we will evaluate the effectiveness of our proposed methods on several popular NER and mention detection tasks, including CoNLL 2003 NER task and 
 TAC-KBP2015 and TAC-KBP2016 Tri-lingual Entity Discovery and Linking (EDL) tasks.
-\footnote{We have made our codes available at https://github.com/xmb-cipher/fofe-ner for readers to reproduce the results in this paper.}
+\footnote{We have made our codes available at https://github.com/user-name/project-name for readers to reproduce the results in this paper.}
 
 \subsection{CoNLL 2003 NER task}
-
-The CoNLL-2003 dataset \cite{tjong2003introduction} consists of newswire from the Reuters RCV1 corpus tagged with four types of named entities: location (LOC), organization (ORG), person (PER), and miscellaneous (MISC).
-
-We have investigated the performance of our method on the CoNLL-2003 dataset by using different combinations of the FOFE features (both word-level and character-level). The detailed comparison results are shown in Table \ref{tbl:feat-cmp:CoNLL03}.  In Table \ref{tbl:nn-cmp:CoNLL03}, we have compared our best performance with some top-performing neural network systems on this task. As we can see from  Table \ref{tbl:nn-cmp:CoNLL03}, our system yields a very strong performance (90.71 in $F_1$ score) in this task, outperforming most of neural network models reported on this dataset. More importantly, we have not used any hand-crafted features in our systems, and all used features (either word or character level) are automatically derived from the data based on the simple FOFE formula. 
-In \cite{chiu2016named}, a slightly better performance (91.62 in $F_1$ score) is reported but a customized gazetteer is used in their method.
 
 \begin{table*}[h!]
 	\centering
@@ -558,6 +556,12 @@ In \cite{chiu2016named}, a slightly better performance (91.62 in $F_1$ score) is
 	\label{tbl:feat-cmp:CoNLL03}
 \end{table*}
 
+The CoNLL-2003 dataset \cite{tjong2003introduction} consists of newswire from the Reuters RCV1 corpus tagged with four types of non-nested named entities: location (LOC), organization (ORG), person (PER), and miscellaneous (MISC).
+
+We have investigated the performance of our method on the CoNLL-2003 dataset by using different combinations of the FOFE features (both word-level and character-level). The detailed comparison results are shown in Table \ref{tbl:feat-cmp:CoNLL03}.  In Table \ref{tbl:nn-cmp:CoNLL03}, we have compared our best performance with some top-performing neural network systems on this task. As we can see from Table \ref{tbl:nn-cmp:CoNLL03}, our system yields a very strong performance (90.71 in $F_1$ score) in this task, outperforming most of neural network models reported on this dataset. More importantly, we have not used any hand-crafted features in our systems, and all features (either word or character level) are automatically derived from the data. 
+%based on the simple FOFE formula. 
+In \cite{chiu2016named}, a slightly better performance (91.62 in $F_1$ score) is reported but a customized gazetteer is used in their method.
+
 
 \begin{table*}[h!]
 	\centering
@@ -568,7 +572,7 @@ In \cite{chiu2016named}, a slightly better performance (91.62 in $F_1$ score) is
 		\cite{collobert2011natural} & \cmark & \xmark & \cmark & \cmark & \xmark & 89.59  \\
 		\cite{huang2015bidirectional} &\cmark & \cmark & \cmark & \cmark & \cmark & 90.10 \\
 		\cite{rondeau2016lstm}  & \cmark & \xmark & \cmark & \cmark & \cmark & 89.28 \\
-		\cite{chiu2016named} & \cmark & \cmark & \cmark & \xmark & \xmark & {\bf 91.62} \\
+		\cite{chiu2016named} \footnote{The actual training set is the combination of training-set and dev-set.} & \cmark & \cmark & \cmark & \xmark & \xmark & {\bf 91.62} \\
 		\hline \hline
 		{\bf this work} & \cmark & \cmark & \xmark & \xmark & \xmark & {\bf 90.71} \\
 		\hline
@@ -580,16 +584,12 @@ In \cite{chiu2016named}, a slightly better performance (91.62 in $F_1$ score) is
 
 \subsection{KBP2015 EDL Task}
 
-Given a document collection in three languages (English, Chinese and Spanish) as input, the KBP2015  tri-lingual EDL task \cite{kbpoverview2015}  requires to automatically identify entity mentions from a
+Given a document collection in three languages (English, Chinese and Spanish), the KBP2015 tri-lingual EDL task \cite{kbpoverview2015} requires to automatically identify entity mentions from a
 source collection of textual documents in multiple
-languages (English, Chinese and Spanish), and 
-classify them into one of the following pre-defined
+languages, and classify them into one of the following pre-defined
 five types: Person (PER), Geo-political Entity
 (GPE), Organization (ORG), Location (LOC)
-and Facility (FAC), and link them to an existing
-English Knowledge Base (KB), and cluster
-mentions for those NIL entities that do not have
-corresponding KB entries.
+and Facility (FAC)
 
 \begin{table}
 \resizebox{\linewidth}{!}{
@@ -610,115 +610,165 @@ corresponding KB entries.
 	\label{Table_KBP2015_ED}
 \end{table}
 
-As shown in Table \ref{Table_KBP2015_ED}, our FOFE-based local detection method has obtained pretty strong performance in the KBP2015 dataset. The overall trilingual entity discovery performance is slightly better than the best system participated in the official KBP2015 evaluation, with $73.9$ vs. $72.4$ as measured by $F_1$ scores.
+As shown in Table \ref{Table_KBP2015_ED}, our FOFE-based local detection method has obtained fairly strong performance in the KBP2015 dataset. The overall trilingual entity discovery performance is slightly better than the best system participated in the official KBP2015 evaluation, with $73.9$ vs. $72.4$ as measured by $F_1$ scores.
+
 
 \subsection{KBP2016 EDL task}
 
-In KBP2016, the trilingual EDL task is extended to to detect nominal mentions of all 5 entity types for all three languages. In our experiments, for simplicity, we just treat nominal mention types as some extra entity types and detect them along with named entities together with a single model.  
-We have evaluated our proposed FOFE-based local detection method for Entity Discovery in KBP2015 dataset and we have used this method to participate the KBP2016 official tri-lingual EDL evaluation. In the following, we will report the performance of our method on these KBP EDL tasks. 
+\begin{table*}[t]
+	\resizebox{\linewidth}{!}{
+		\centering
+		\begin{tabular}{|l|lll|lll|lll|lll|}
+			\hline
+			\multirow{2}{*}{LANG}  &
+			\multicolumn{3}{c|}{NAME} & \multicolumn{3}{c|}{NOMINAL} & \multicolumn{3}{c|}{OVERALL} & \multicolumn{3}{c|}{2016 BEST} \\
+			\ & P & R & F1 & P & R & F1 & P & R & F1 & P & R & F1\\
+			\hline \hline
+			ENG & 0.898 & 0.789 & 0.840 & 0.554 & 0.336 & 0.418 & 0.836 & 0.680 & 0.750 & 0.846 & 0.710 & 0.772 \\
+			CMN & 0.848 & 0.702 & 0.768 & 0.414 & 0.258 & 0.318 & 0.789 & 0.625 & 0.698 & 0.789 & 0.737 & 0.762 \\
+			SPA & 0.835 & 0.778 & 0.806 & 0.000 & 0.000 & 0.000 & 0.835 & 0.602 & 0.700 & 0.839 & 0.656 & 0.736 \\
+			ALL & 0.893 & 0.759 & 0.821 & 0.541 & 0.315 & 0.398 & 0.819 & 0.639 & {\bf 0.718} & 0.802 & 0.704 & 0.756 \\
+			\hline 
+	\end{tabular}}
+	\caption{Official entity discovery performance of our methods on KBP2016 trilingual EDL track.}
+	\label{tbl:kbp2016}
+\end{table*}
+
+In KBP2016, the trilingual EDL task is extended to detect nominal mentions of all 5 entity types for all three languages. In our experiments, for simplicity, we just treat nominal mention types as some extra entity types and detect them along with named entities together with a single model.  
+%We have evaluated our proposed FOFE-based local detection method for Entity Discovery in KBP2015 dataset and we have used this method to participate the KBP2016 official tri-lingual EDL evaluation. 
+%In the following, we will report the performance of our method on these KBP EDL tasks. 
 
 
-\subsection{Training Data}
+%\subsection{Training Data}
 
-For the KBP2015  trilingual EDL task, we make use of the following data sets as our training data to learn the NER and mention detection models. 
-%In both evaluation window, we make use of three training data:
+%For the KBP2016 trilingual EDL task, we make use of the following data sets as our training data to learn the NER and mention detection models. 
+%In EDL task, we make use of three training data:
+We make use of three training data:
 
 \begin{itemize}
-	\item \textbf{Training and evaluation data in KBP2015}: In previous year's competition, 335 English documents, 313 Chinese documents and 296 Spanish documents were annotated for training and evaluation, totalling 944 documents. In this data set, all five named mention types (PER, ORG, GPE, LOC, FAC) and only one nominal mention type (PER) are labelled. In KBP2016, nominal mention has been expanded to all 5 classes of named entities.
+	\item \textbf{Training and evaluation data in KBP2015}: In previous year's competition, 335 English documents, 313 Chinese documents and 296 Spanish documents were annotated for training and evaluation, totalling 944 documents. In this data set, all five named mention types (PER, ORG, GPE, LOC, FAC) and only one nominal mention type (PER) are labeled. 
+%	In KBP2016, nominal mention has been expanded to all 5 classes of named entities.
 	
-	\item \textbf{Machine-labeled Wikipedia}: When terms or names are first mentioned in a Wikipedia article they are often linked to the corresponding Wikipedia page by hyperlinks, which clearly highlights the possible named entities with well-defined boundary in the text. We have developed a program to automatically map these hyperlinks into KBP annotations by exploring the infobox (if existing) of the destination page and/or examining the corresponding Freebase types. Nominal mentions are not labelled by this approach. In this way, we have created a fairly large amount of  weakly-supervised trilingual training data for the KBP2016 EDL task.
+	\item \textbf{Machine-labeled Wikipedia}: When terms or names are first mentioned in a Wikipedia article they are often linked to the corresponding Wikipedia page by hyperlinks, which clearly highlights the possible named entities with well-defined boundary in the text. We have developed a program to automatically map these hyperlinks into KBP annotations by exploring the infobox (if existing) of the destination page and/or examining the corresponding Freebase types. Nominal mentions are not labeled by this approach. 
+%	In this way, we have created a fairly large amount of  weakly-supervised trilingual training data for the KBP2016 EDL task.
 	
-	\item \textbf{iFLYTEK's in-house dataset}: The iFLYTEK Research has generously shared with us about 10,000 in-house English and Chinese labeled documents \cite{kbp2016iflytek}.  These documents are internally labelled by iFLYTEK using some annotation rules similar to the KBP 2016 guidelines.
+	\item \textbf{iFLYTEK's in-house dataset}: The iFLYTEK Research has generously shared with us about 10,000 in-house English and Chinese labeled documents \cite{kbp2016iflytek}.  These documents are internally labeled by iFLYTEK using some annotation rules similar to the KBP 2016 guidelines.
 	
 \end{itemize}
 
 Additionally, when we generate the machine-labeled data from Wikipedia, we have also created a large gazetteer using the titles of Wikipedia pages and Freebase nodes. 
 We have used the gazetteer-related features for the KBP2016 EDL task.
 
-\subsection{Data Preprocessing}
-
-Data from both KBP2015 and KBP2016 are in the  XML format. 
-Our preprocessing tools only extract text surrounded by two adjacent XML tags for later stages 
-since XML tags tend to be metadata and irrelevant to our task. 
-The values of all author attributes are extracted from all post tags, which are directly labeled as {\it PER}.
-The extracted text is sent to the Stanford CoreNLP toolkit for sentence splitting and tokenization.  
-All words containing digits are mapped to several pre-defined tokens, e.g. $\langle number \rangle$, $\langle date \rangle$, using some regular expression matches.   
+%\subsection{Data Preprocessing}
+%
+%Data from both KBP2015 and KBP2016 are in XML format. 
+%Our preprocessing tools only extract text surrounded by two adjacent XML tags for later stages 
+%since XML tags tend to be metadata and irrelevant to our task. 
+%The values of all author attributes are extracted from all post tags, which are directly labeled as {\it PER }.
+%The extracted text is sent to the Stanford CoreNLP toolkit for sentence splitting and tokenization.  
+%All words containing digits are mapped to several pre-defined tokens, e.g. $\langle number \rangle$, $\langle date \rangle$, using some regular expression matches.   
 
 \subsection{Hyperparameter optimization}
 
-We perform grid search on several hyper-parameters, 
-including initial learning, mini-batch size, initial dropout, 
-number of layers, size of hidden layer, number of epochs, on the held-out validation set.
-Each hyper-parameter typically has 3 to 5 options during the grid search. 
+We perform grid search on several hyper-parameters. Here we summarize the set of hyper-parameters used in our experiments:
+i) {\it Learning rate}: initially set to 0.128 and is multiplied by a decay factor each epoch so that it reaches 1/16 of the initial value at the end of the training;
+ii) {\it Network structure}: 3 fully-connected layers of 512 nodes with ReLU activation , randomly initialized based on a uniform distribution between $-\sqrt{\frac{6}{N_i + N_o}}$  and $\sqrt{\frac{6}{N_i + N_o}}$ \cite{glorot2011deep};
+iii) {\it Character embeddings}: 64 dimensionare, randomly initialized.
+iv) {\it mini-batch}: 512;
+v) {\it Dropout rate}: initially set to 0.4, slowly decreased during training until it reaches 0.1 at the end.
 
-Here we summarize the set of hyper-parameters used in our experiments:
+%, 
+%including initial learning, mini-batch size, initial dropout, 
+%number of layers, size of hidden layer, number of epochs, on the held-out validation set.
+%Each hyper-parameter typically has 3 to 5 options during the grid search. 
+
+
 \begin{itemize}
 	\item \textbf{KBP series}:
-	i) {\it Number of epochs}: we normally run 256 epochs if the iFLYTEK data is not used in training. Otherwise, we only run 64 epochs. ii) {\it Learning rate}: it is initially set to 0.128 and it is gradually decreased by multiplying a number at the end of every epoch so that  it reaches 1/16 of the initial value at the end of the whole training process; iii) {\it Dropout rate}: it is initially set to 0.4 and it is slowly decreased in the training until it reaches 0.1 at the end. iv) {\it Network structure}: we use a feedforward fully-connected structure of 3 hidden layers, each of which has 512 hidden nodes. The ReLU activation function is used. The network weights are randomly initialized based on a uniform distribution between $-\sqrt{\frac{6}{N_i + N_o}}$  and $\sqrt{\frac{6}{N_i + N_o}}$ \cite{glorot2011deep}. v) {\it Embedding matrices}: 
-	case-sensitive and case-insensitive word embeddings of 128 dimensions for three languages are pre-trained from English Gigaword, Chinese Wikipeida and Spanish Gigaword using the {\em word2vec} tool \cite{mikolov2013distributed}. Character embeddings have 64 dimensionare and they are randomly initialized. vi) We normally split the available training data into training, validation and evaluation sets in a ratio of 90:5:5.
+	i) {\it Number of epochs}: 64 epochs if the iFLYTEK data is used in training, 64 epochs otherwise; ii)
+	ii) {\it Embedding matrices}: 
+	case-sensitive and case-insensitive word embeddings of 128 dimensions for three languages are pre-trained from English Gigaword, Chinese Wikipeida and Spanish Gigaword using the {\em word2vec} tool \cite{mikolov2013distributed};
+	iii) We normally split the available training data into training, validation and evaluation sets in a ratio of 90:5:5.
+	
 	\item \textbf{CoNLL2003}:
-	Similar to \textbf{KBP series} except that i) Word embeddings are of 256 dimensions and trained from Reuters RC1. ii) 128 epochs are run instead.
+	i) {\it Number of epochs}: 128;
+	ii){\it Embedding matrices} case-sensitive and case-insensitive word embeddings of 128 dimensions, trained from Reuters RC1;
 	iii) We stick to the official data train-dev-test partition.  
 \end{itemize}
+
+
+%\begin{itemize}
+%	\item \textbf{KBP series}:
+%	i) {\it Number of epochs}: we normally run 256 epochs if the iFLYTEK data is not used in training. Otherwise, we only run 64 epochs. ii) {\it Learning rate}: it is initially set to 0.128 and it is gradually decreased by multiplying a number at the end of every epoch so that it reaches 1/16 of the initial value at the end of the whole training process; iii) {\it Dropout rate}: it is initially set to 0.4 and it is slowly decreased in the training until it reaches 0.1 at the end. iv) {\it Network structure}: we use a  fully-connected structure of 3 hidden layers, each of which has 512 hidden nodes. The ReLU activation function is used. The network weights are randomly initialized based on a uniform distribution between $-\sqrt{\frac{6}{N_i + N_o}}$  and $\sqrt{\frac{6}{N_i + N_o}}$ \cite{glorot2011deep}. v) {\it Embedding matrices}: 
+%	case-sensitive and case-insensitive word embeddings of 128 dimensions for three languages are pre-trained from English Gigaword, Chinese Wikipeida and Spanish Gigaword using the {\em word2vec} tool \cite{mikolov2013distributed}. Character embeddings have 64 dimensionare and they are randomly initialized. vi) We normally split the available training data into training, validation and evaluation sets in a ratio of 90:5:5.
+%	\item \textbf{CoNLL2003}:
+%	Similar to \textbf{KBP series} except that i) Word embeddings are of 256 dimensions and trained from Reuters RC1. ii) 128 epochs are run instead.
+%	iii) We stick to the official data train-dev-test partition.  
+%\end{itemize}
 
 
 \subsection{Effect of various training data}
 
 In our first set of experiments, we investigate the effect of using different training data sets on the final entity discovery performance. 
-Different training runs are conducted  on different combinations of the aforementioned data sources.
-In Table \ref{tbl:kbp2016-EDL1}, we have summarized the official English entity discovery results from three systems we submitted to KBP2016 EDL1 evaluation. The first system, using only the KBP2015 data to train the model, has achieved 0.693 in $F_1$ score in the official KBP2016 English evaluation data. After adding the weakly labelled data, WIKI, we can see the entity discovery performance is improved to 0.707 in  $F_1$ score. Finally, we can see that it yields the best performance by using the KBP2015 data and the iFLYTEK in-house data sets to train our models, giving 0.731 in $F_1$ score.
+Different training runs are conducted on different combinations of the aforementioned data sources.
+In Table \ref{tbl:kbp2016-EDL1}, we have summarized the official English entity discovery results from three systems we submitted to KBP2016 EDL evaluation. The first system, using only the KBP2015 data to train the model, has achieved 0.693 in $F_1$ score in the official KBP2016 English evaluation data. After adding the weakly labeled data, WIKI, we can see the entity discovery performance is improved to 0.707 in  $F_1$ score. Finally, we can see that it yields the best performance by using the KBP2015 data and the iFLYTEK in-house data sets to train our models, giving 0.750 in $F_1$ score.
 
-\begin{table}[t]
+\begin{table}[h]
 	\centering
-	\begin{tabular}{|c|ll|l|}
+	\begin{tabular}{|l|ll|l|}
 		\hline
 		training data  &  P   &  R  &  $F_1$ \\ \hline \hline
 		KBP2015 &  0.818 & 0.600 & 0.693 \\
-		KBP2015 + WIKI  &   0.859 & 0.601 & 0.707 \\	
-		KBP2015 + iFLYTEK &  0.830 & 0.652 & \bf 0.731 \\
+		KBP2015 + WIKI  &   0.859 & 0.601 & \bf 0.707 \\	
+		KBP2015 + iFLYTEK & 0.836 & 0.680 & \bf 0.750 \\
 		\hline
 	\end{tabular}
-	\caption{Entity discovery performance (English only) in KBP2016 EDL1 evaluation window is shown as a comparison of three models trained by different combinations of training data sets. }
+	\caption{Entity discovery performance (English only) in KBP2016 is shown as a comparison of three models trained by different combinations of training data sets. }
 	\label{tbl:kbp2016-EDL1}	
 \end{table}
 
 
-\subsection{The official performance in KBP2016 EDL evaluation}
+\subsection{The official trilingual performance in KBP2016 EDL}
 
-After fixing some system bugs, we have used both the KBP2015 data and iFLYTEK data to re-train our models for three languages and finally submitted three systems to the final KBP2016 EDL2 evaluation. The official results of two systems are summarized in Table \ref{tbl:kbp2016}. In our systems, we treat all nominal mentions as special types of named entities and both named and nominal entities are recognized using one model. Here we have broken down the system performance according to different languages and categories of entities (named or nominal). In RUN1, we have submitted our best NER system, achieving about 0.718 in $F_1$ score in the KBP2016 trilingual EDL track. This  is a very strong performance among all KBP2016 participating teams. In RUN3, we have submitted system fusion results by combining our results with the best results from another KBP2016 participating team using CNNs and RNNs \cite{kbp2016iflytek}. The overall trilingual $F_1$ score is improved to 0.754.  It is worth to note that we have obtained a pretty high recall rate, about 0.735, after the system combination because the NER methods used by these two systems are quite complementary.  
 
-\begin{table*}[h!]
-	\centering
-	\begin{tabular}{|l|lll|lll|lll|}
-		\hline
-		\multirow{2}{*}{LANG}  &
-		\multicolumn{3}{c|}{NAME} & \multicolumn{3}{c|}{NOMINAL} & \multicolumn{3}{c|}{OVERALL} \\
-		\ & P & R & F1 & P & R & F1 & P & R & F1 \\
-		\hline \hline
-		& \multicolumn{9}{c|}{RUN1 (our official ED result in KBP2016 EDL2)} \\ 
-		\hline
-		ENG & 0.898 & 0.789 & 0.840 & 0.554 & 0.336 & 0.418 & 0.836 & 0.680 & 0.750 \\
-		CMN & 0.848 & 0.702 & 0.768 & 0.414 & 0.258 & 0.318 & 0.789 & 0.625 & 0.698 \\
-		SPA & 0.835 & 0.778 & 0.806 & 0.000 & 0.000 & 0.000 & 0.835 & 0.602 & 0.700 \\
-		ALL & 0.893 & 0.759 & 0.821 & 0.541 & 0.315 & 0.398 & 0.819 & 0.639 & {\bf 0.718} \\
-		\hline
-		& \multicolumn{9}{c|}{RUN3 (system fusion of RUN1 with the best system in \cite{kbp2016iflytek})} \\
-		\hline
-		ENG & 0.857	& 0.876 & 0.866 & 0.551 & 0.373 & 0.444 & 0.804 & 0.755 & 0.779 \\
-		CMN & 0.790 & 0.839 & 0.814 & 0.425 & 0.380 & 0.401 & 0.735 & 0.760 & 0.747 \\
-		SPA & 0.790 & 0.877 & 0.831 & 0.000 & 0.000 & 0.000 & 0.790 & 0.678 & 0.730 \\
-		ALL & 0.893 & 0.759 & 0.821 & 0.541 & 0.315 & 0.398 & 0.774 & {\bf 0.735} & {\bf 0.754} \\
-		\hline 
-	\end{tabular}
-	\caption{Official entity discovery performance of our methods on KBP2016 trilingual EDL track.}
-	\label{tbl:kbp2016}
-\end{table*}
+%After fixing some system bugs, we have used both the KBP2015 data and iFLYTEK data to re-train our models for three languages and finally submitted three systems to the final KBP2016 EDL2 evaluation. 
+% The official results of two systems are summarized in Table \ref{tbl:kbp2016}. 
+The official results of our system is summarized in Table \ref{tbl:kbp2016}.
+In our systems, we treat all nominal mentions as special types of named entities and both named and nominal entities are recognized using one model. Here we have broken down the system performance according to different languages and categories of entities (named or nominal). Our system, achieves 0.718 in $F_1$ score in the KBP2016 trilingual EDL track, which ranks second in among all participants. Note that our result is produced by a single system while the top system is emsembled by two diffrent models, each of which is from 5-fold cross-validation.
+
+
+%\begin{table*}[t]
+%	\centering
+%	\begin{tabular}{|l|lll|lll|lll|}
+%		\hline
+%		\multirow{2}{*}{LANG}  &
+%		\multicolumn{3}{c|}{NAME} & \multicolumn{3}{c|}{NOMINAL} & \multicolumn{3}{c|}{OVERALL} \\
+%		\ & P & R & F1 & P & R & F1 & P & R & F1 \\
+%		\hline \hline
+%		& \multicolumn{9}{c|}{RUN1 (our official ED result in KBP2016 EDL2)} \\ 
+%		\hline
+%		ENG & 0.898 & 0.789 & 0.840 & 0.554 & 0.336 & 0.418 & 0.836 & 0.680 & 0.750 \\
+%		CMN & 0.848 & 0.702 & 0.768 & 0.414 & 0.258 & 0.318 & 0.789 & 0.625 & 0.698 \\
+%		SPA & 0.835 & 0.778 & 0.806 & 0.000 & 0.000 & 0.000 & 0.835 & 0.602 & 0.700 \\
+%		ALL & 0.893 & 0.759 & 0.821 & 0.541 & 0.315 & 0.398 & 0.819 & 0.639 & {\bf 0.718} \\
+%		\hline
+%		& \multicolumn{9}{c|}{RUN3 (system fusion of RUN1 with the best system in \cite{kbp2016iflytek})} \\
+%		\hline
+%		ENG & 0.857	& 0.876 & 0.866 & 0.551 & 0.373 & 0.444 & 0.804 & 0.755 & 0.779 \\
+%		CMN & 0.790 & 0.839 & 0.814 & 0.425 & 0.380 & 0.401 & 0.735 & 0.760 & 0.747 \\
+%		SPA & 0.790 & 0.877 & 0.831 & 0.000 & 0.000 & 0.000 & 0.790 & 0.678 & 0.730 \\
+%		ALL & 0.893 & 0.759 & 0.821 & 0.541 & 0.315 & 0.398 & 0.774 & {\bf 0.735} & {\bf 0.754} \\
+%		\hline 
+%	\end{tabular}
+%	\caption{Official entity discovery performance of our methods on KBP2016 trilingual EDL track.}
+%	\label{tbl:kbp2016}
+%\end{table*}
 
 \section{Conclusion}
 
-In this paper, we have proposed a new local detection based approach, which rely on the recent fixed-size ordinally forgetting encoding (FOFE) method to fully encode each fragment and its left/right contexts into a fixed-size representation. Afterwards, a simple feedforward neural network is used to reject or predict entity label for each individual fragment. The proposed method has been evaluated in several popular NER and mention detection tasks, including the CoNLL 2003 NER task and  TAC-KBP2015 and TAC-KBP2016 Tri-lingual Entity Discovery and Linking (EDL) tasks. Our methods have yielded pretty strong performance in all of these examined tasks. 
+In this paper, we have proposed a new local detection based approach, which rely on the recent fixed-size ordinally forgetting encoding (FOFE) method to fully encode each fragment and its left/right contexts into a fixed-size representation. Afterwards, a simple neural network is used to reject or predict entity label for each individual fragment. The proposed method has been evaluated in several popular NER and mention detection tasks, including the CoNLL 2003 NER task and  TAC-KBP2015 and TAC-KBP2016 Tri-lingual Entity Discovery and Linking (EDL) tasks. Our methods have yielded pretty strong performance in all of these examined tasks. 
 
-Obviously, this FOFE-based local detection approach can be easily extended to tackle many other NLP tasks, such as chunking, POS tagging, entity linking, semantic parsing. We will report our progresses in these new tasks in the future.  
+%Obviously, this FOFE-based local detection approach can be easily extended to tackle many other NLP tasks, such as chunking, POS tagging, entity linking, semantic parsing. We will report our progresses in these new tasks in the future.  
 
 \bibliography{fofe4ner}
 \bibliographystyle{acl_natbib}
