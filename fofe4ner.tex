@@ -43,9 +43,9 @@
 \setlength{\abovedisplayshortskip}{0pt}
 \setlength{\abovedisplayshortskip}{0pt}
 
-\setlength{\textfloatsep}{3pt plus .3pt minus .6pt}
-\setlength{\floatsep}{3pt plus .3pt minus .6pt}
-\setlength{\intextsep}{3pt plus .3pt minus .6pt}
+\setlength{\textfloatsep}{5pt plus .5pt minus 1pt}
+\setlength{\floatsep}{5pt plus .5pt minus 1pt}
+\setlength{\intextsep}{5pt plus .5pt minus 1pt}
 
 %\aclfinalcopy % Uncomment this line for the final submission
 %\def\aclpaperid{***} %  Enter the acl Paper ID here
@@ -164,7 +164,7 @@ these successes are often established by sophisticated models combining CNNs, LS
 
 \begin{figure*}[t]
 	\centering
-	\includegraphics[width=0.9\linewidth]{figure-diagram-v2}
+	\includegraphics[width=0.86\linewidth]{figure-diagram-v4}
 	\caption{Illustration of the local detection approach for NER using FOFE codes as input and an FFNN as model. The window currently examines the fragment of {\it Toronto Maple Leafs}. The window will scan and scrutinize all fragments up to $K$ words. }
 	\label{Fig:FOFE-NER-diagram}
 \end{figure*}
@@ -180,49 +180,46 @@ It is well known that  neural network is a universal approximator under certain 
 A feedforward neural network (FFNN) is a weighted graph with a layered architecture.
 Each layer is composed of several nodes.
 Successive layers are fully connected. Each node applies a function on weighted sum of the lower layer.
-
-Formally, let $x_{n,j}$ denote the value of the $j$-th node in the
-$n$-th layer and $W^n_{i,j}$ denote the weight of the connection from
-$x_{n,i}$ to $x_{n+1,j}$. Then
-\begin{equation}
-z_{n+1,j} = \sum_i W^n_{i,j} x_{n,i}
-\end{equation}
-\begin{equation}
-x_{n+1,j} = \sigma\left(z_{n+1,j}\right)
-\end{equation}
-where $\sigma$ is the activation function, usually chosen to be 
+%Formally, let $x_{n,j}$ denote the value of the $j$-th node in the
+%$n$-th layer and $W^n_{i,j}$ denote the weight of the connection from
+%$x_{n,i}$ to $x_{n+1,j}$. Then
+%\begin{equation}
+%z_{n+1,j} = \sum_i W^n_{i,j} x_{n,i}
+%\end{equation}
+%\begin{equation}
+%x_{n+1,j} = \sigma\left(z_{n+1,j}\right)
+%\end{equation}
+%where $\sigma$ is the activation function, usually chosen to be 
 %sigmoid:
 %\begin{equation}
 %\sigma(x) = \frac{1}{1 + e^{-x}}
 %\end{equation}
 %or 
-rectified linear unit (ReLU):
-\begin{equation}
-\sigma(x) = \max(0, x).
-\end{equation}
-For classification tasks, the outputs are normalized into a probability distribution by the so-called {\it soft-max} function, where the $i$-th node is computed as follows:
-\begin{equation}
-\sigma(x_i) =  \frac{\exp(x_i)}{\sum_{j} \exp(x_j)}.
-\end{equation}
-
+%rectified linear unit (ReLU):
+%\begin{equation}
+%\sigma(x) = \max(0, x).
+%\end{equation}
+%For classification tasks, the outputs are normalized into a probability distribution by the so-called {\it soft-max} function, where the $i$-th node is computed as follows:
+%\begin{equation}
+%\sigma(x_i) =  \frac{\exp(x_i)}{\sum_{j} \exp(x_j)}.
+%\end{equation}
 An NN can learn by adjusting its weights in a process called back-propagation. 
-Suppose that we have already calculated the outputs given by an NN for any input.
-Let $E(y,t)$ be an error metric that measures how incorrect the output
-$y$ is with respect to the expected target output $t$. For each weight
-in NN, we may calculate:
-\begin{equation}
-\frac{\partial E}{\partial W^n_{i,j}} = \frac{\partial E}{\partial
-	\sigma} \frac{\partial \sigma}{\partial z_{i+1,j}} \frac{\partial
-	z_{i+1,j}}{\partial W^n_{i,j}}.
-\end{equation}
-Each weight may be adjusted to slowly reduce this error for each training
-example, and hence the NN learns to fit the input and the output. 
-This is accomplished by the following the update rule, where $\alpha$ is called the learning rate:
-\begin{equation}
-W^n_{i,j} := W^n_{i,j} - \alpha \frac{\partial E}{\partial
-	W^n_{i,j}}.
-\end{equation}
-
+%Suppose that we have already calculated the outputs given by an NN for any input.
+%Let $E(y,t)$ be an error metric that measures how incorrect the output
+%$y$ is with respect to the expected target output $t$. For each weight
+%in NN, we may calculate:
+%\begin{equation}
+%\frac{\partial E}{\partial W^n_{i,j}} = \frac{\partial E}{\partial
+%	\sigma} \frac{\partial \sigma}{\partial z_{i+1,j}} \frac{\partial
+%	z_{i+1,j}}{\partial W^n_{i,j}}.
+%\end{equation}
+%Each weight may be adjusted to slowly reduce this error for each training
+%example, and hence the NN learns to fit the input and the output. 
+%This is accomplished by the following the update rule, where $\alpha$ is called the learning rate:
+%\begin{equation}
+%W^n_{i,j} := W^n_{i,j} - \alpha \frac{\partial E}{\partial
+%	W^n_{i,j}}.
+%\end{equation}
 The learned NN may be used to generalize and extrapolate to new inputs that have not been seen during training.
 
 \subsection{Fixed-size Ordinally Forgetting Encoding}
@@ -336,11 +333,11 @@ In this work, we use FOFE to explore both word-level and character-level feature
 
 \begin{itemize}
 	%	\setlength\itemsep{0.5em}
-	\item Bag-of-word vector of the fragment.  For the example in Figure \ref{Fig:FOFE-NER-diagram}, it is a bag-of-word vector of 'Toronto', 'Maple' and 'Leafs'. 
-	\item FOFE code for left context including the fragment. In Figure \ref{Fig:FOFE-NER-diagram}, it is the FOFE code of the word sequence of ``{\it ... puck from space for the Toronto Maple Leafs  }".
-	\item FOFE code for left context excluding the fragment. In Figure \ref{Fig:FOFE-NER-diagram}, it is the FOFE code of the word sequence of ``{\it ... puck from space for the}".	
-	\item FOFE code for right context including the fragment. In Figure \ref{Fig:FOFE-NER-diagram}, it is the FOFE code of the word sequence of ``{\it   ... against opener home ' Leafs  Maple  Toronto}".
-	\item FOFE code for right context excluding the fragment. In Figure \ref{Fig:FOFE-NER-diagram}, it is the FOFE code of the word sequence of ``{\it ... against opener home ' }".
+	\item Bag-of-word(BoW) of the fragment, e.g. bag-of-word vector of `Toronto', `Maple' and `Leafs' in Figure \ref{Fig:FOFE-NER-diagram}. 
+	\item FOFE code for left context including the fragment, e.g. FOFE code of the word sequence of ``{\it ... puck from space for the Toronto Maple Leafs}" in Figure \ref{Fig:FOFE-NER-diagram}.
+	\item FOFE code for left context excluding the fragment, e.g. the FOFE code of the word sequence of ``{\it ... puck from space for the}" in Figure \ref{Fig:FOFE-NER-diagram}..	
+	\item FOFE code for right context including the fragment, e.g. the FOFE code of the word sequence of ``{\it   ... against opener home ' Leafs  Maple  Toronto}" in Figure \ref{Fig:FOFE-NER-diagram}.
+	\item FOFE code for right context excluding the fragment, e.g. the FOFE code of the word sequence of ``{\it ... against opener home '}" in Figure \ref{Fig:FOFE-NER-diagram}.
 \end{itemize}
 
 Moreover, all of the above word features are computed for both case-sensitive words in raw text as well as case-insensitive words in normalized lower-case text. These FOFE codes are projected to lower-dimension dense vectors based on two projection matrices, ${\bf W}_s$ and ${\bf W}_i$, for case-sensitive and case-insensitive FOFE codes respectively. These two projection matrices are initialized by word embeddings trained by {\it word2vec}, and fine-tuned during the learning of the neural networks. 
@@ -778,33 +775,6 @@ In Table \ref{tbl:kbp2016-EDL1}, we have summarized the official English entity 
 The official results of our system is summarized in Table \ref{tbl:kbp2016}.
 In our systems, we treat all nominal mentions as special types of named entities and both named and nominal entities are recognized using one model. Here we have broken down the system performance according to different languages and categories of entities (named or nominal). Our system, achieves 0.718 in $F_1$ score in the KBP2016 trilingual EDL track, which ranks second in among all participants. Note that our result is produced by a single system while the top system is emsembled by two diffrent models, each of which is from 5-fold cross-validation.
 
-
-%\begin{table*}[t]
-%	\centering
-%	\begin{tabular}{|l|lll|lll|lll|}
-%		\hline
-%		\multirow{2}{*}{LANG}  &
-%		\multicolumn{3}{c|}{NAME} & \multicolumn{3}{c|}{NOMINAL} & \multicolumn{3}{c|}{OVERALL} \\
-%		\ & P & R & F1 & P & R & F1 & P & R & F1 \\
-%		\hline \hline
-%		& \multicolumn{9}{c|}{RUN1 (our official ED result in KBP2016 EDL2)} \\ 
-%		\hline
-%		ENG & 0.898 & 0.789 & 0.840 & 0.554 & 0.336 & 0.418 & 0.836 & 0.680 & 0.750 \\
-%		CMN & 0.848 & 0.702 & 0.768 & 0.414 & 0.258 & 0.318 & 0.789 & 0.625 & 0.698 \\
-%		SPA & 0.835 & 0.778 & 0.806 & 0.000 & 0.000 & 0.000 & 0.835 & 0.602 & 0.700 \\
-%		ALL & 0.893 & 0.759 & 0.821 & 0.541 & 0.315 & 0.398 & 0.819 & 0.639 & {\bf 0.718} \\
-%		\hline
-%		& \multicolumn{9}{c|}{RUN3 (system fusion of RUN1 with the best system in \cite{kbp2016iflytek})} \\
-%		\hline
-%		ENG & 0.857	& 0.876 & 0.866 & 0.551 & 0.373 & 0.444 & 0.804 & 0.755 & 0.779 \\
-%		CMN & 0.790 & 0.839 & 0.814 & 0.425 & 0.380 & 0.401 & 0.735 & 0.760 & 0.747 \\
-%		SPA & 0.790 & 0.877 & 0.831 & 0.000 & 0.000 & 0.000 & 0.790 & 0.678 & 0.730 \\
-%		ALL & 0.893 & 0.759 & 0.821 & 0.541 & 0.315 & 0.398 & 0.774 & {\bf 0.735} & {\bf 0.754} \\
-%		\hline 
-%	\end{tabular}
-%	\caption{Official entity discovery performance of our methods on KBP2016 trilingual EDL track.}
-%	\label{tbl:kbp2016}
-%\end{table*}
 
 \section{Conclusion}
 
