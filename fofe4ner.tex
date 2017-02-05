@@ -43,6 +43,10 @@
 \setlength{\abovedisplayshortskip}{0pt}
 \setlength{\abovedisplayshortskip}{0pt}
 
+\setlength{\textfloatsep}{3pt plus .3pt minus .6pt}
+\setlength{\floatsep}{3pt plus .3pt minus .6pt}
+\setlength{\intextsep}{3pt plus .3pt minus .6pt}
+
 %\aclfinalcopy % Uncomment this line for the final submission
 %\def\aclpaperid{***} %  Enter the acl Paper ID here
 
@@ -92,18 +96,22 @@ NER and MD is a task of identifying entities (named and/or nominal) from raw tex
 %	\small
 %	${[S.E.C.]}_{ORG}$ chief ${[Mary\ Shapiro]}_{PER}$ left ${[Washington]}_{LOC}$ in December .
 %\end{quote}
-while the others also detects nominal mentions, for example
+while the others also detects nominal mentions.%, for example
 %which are important for other NLP tasks such as co-reference resolution
-\begin{quote}
-	\label{emp:10types}
-	\small
-	$[Mark]_{PER}$ and his closest $[friend]_{PER\_N}$ $[Scarlet]_{PER}$, a cello $[player]_{PER\_N}$, joined the same music $[company]_{ORG\_N}$.
-\end{quote}
+%\begin{quote}
+%	\label{emp:10types}
+%	\small
+%	$[Mark]_{PER}$ and his closest $[friend]_{PER\_N}$ $[Scarlet]_{PER}$, a cello $[player]_{PER\_N}$, joined the same music $[company]_{ORG\_N}$.
+%\end{quote}
 Moreover, nested mentions may need to be extracted too. For example, 
+%\begin{quote}
+%	\label{emp:nested-ex}
+%	\small
+%	He used to study in \\  ${[University\ of\ {[Toronto]}_{LOC}]}_{ORG}$.
+%\end{quote}
 \begin{quote}
-	\label{emp:nested-ex}
 	\small
-	He used to study in \\  ${[University\ of\ {[Toronto]}_{LOC}]}_{ORG}$.
+	$[Sue]_{PER}$ and her $[brother]_{PER\_N}$ studied in ${[University\ of\ {[Toronto]}_{LOC}]}_{ORG}$. 
 \end{quote}
 where {\it Toronto} is a LOC entity, embedded in another longer ORG entity {\it University of Toronto}.
 
@@ -270,12 +278,13 @@ Furthermore, in natural languages, normally a word does not appear repeatedly wi
 \subsection {Character-level Models in NLP}
 \label{subsec_char_feature}
 
-As shown in \cite{kim2015character} recently, it may be beneficial to model morphology in the character level since this may provide some additional advantages in dealing with unknown or out-of-vocabulary (OOVs) words in a language.
-
-The above FOFE method can be easily extended to model character-level feature in NLP. Any word, phrase or fragment can be viewed as a sequence of characters. Based on a pre-defined set of all possible characters, we may apply the same FOFE method to encode the sequence of characters. This always leads to a fixed-size representation, irrelevant to the number of characters in question. 
-For example, a word fragment of ``iFLYTEK'' may be viewed as a 
-sequence of seven characters: `i', `F', `L', `Y', `T', `E', `K'.
-The FOFE codes of character sequences are always fixed-sized and they can be directly fed to an FFNN for  morphology  modeling. 
+\newcite{kim2015character} models morphology in the character level since this may provide some additional advantages in dealing with unknown or out-of-vocabulary (OOVs) words in a language.
+The above FOFE method can be easily extended to model character-level feature in NLP. Any word, phrase or fragment can be viewed as a sequence of characters. Based on a pre-defined set of all possible characters, we apply the same FOFE method to encode the sequence of characters. This always leads to a fixed-size representation, irrelevant to the number of characters in question. 
+For example, a word fragment of ``hope'' may be viewed as a 
+sequence of four characters: `h', `o', `p', `e'.
+%The FOFE codes of character sequences are 
+They are
+always fixed-sized and they can be directly fed to an FFNN for morphology modeling. 
 
 In the literature, convolutional neural networks (CNNs) have been widely used as character-level models in NLP \cite{kim2015character}. 
 Let $C$ denote the set of possible characters, and $D$ denote the dimensionality of character embeddings.
@@ -294,7 +303,6 @@ The output  $y$ of this kernel is given by:
 \label{eq:max-pool}
 y = \max(v_1, v_2, ..., v_{l-h+1})
 \end{equation}
-
 If there are $N$ groups of kernels, each of which has $n_1$, $n_2$, $n_3$, ... , ${n_{|N|}}$ kernels respectively,
 following Eqs. (\ref{eq:conv}) and (\ref{eq:max-pool}), the final representation from the character CNN for this word or fragment is a vector of length $\sum_{i=1}^{|N|} n_{i}$.
 
@@ -575,7 +583,7 @@ The CoNLL-2003 dataset \cite{tjong2003introduction} consists of newswire from th
 
 We have investigated the performance of our method on the CoNLL-2003 dataset by using different combinations of the FOFE features (both word-level and character-level). The detailed comparison results are shown in Table \ref{tbl:feat-cmp:CoNLL03}.  In Table \ref{tbl:nn-cmp:CoNLL03}, we have compared our best performance with some top-performing neural network systems on this task. As we can see from Table \ref{tbl:nn-cmp:CoNLL03}, our system yields a very strong performance (90.71 in $F_1$ score) in this task, outperforming most of neural network models reported on this dataset. More importantly, we have not used any hand-crafted features in our systems, and all features (either word or character level) are automatically derived from the data. 
 %based on the simple FOFE formula. 
-In \cite{chiu2016named}, a slightly better performance (91.62 in $F_1$ score) is reported but a customized gazetteer is used in their method.
+In \cite{chiu2016named}\footnote{The actual training set is the combination of training-set and dev-set.}, a slightly better performance (91.62 in $F_1$ score) is reported but a customized gazetteer is used in their method.
 
 
 %\begin{table}
@@ -606,7 +614,7 @@ In \cite{chiu2016named}, a slightly better performance (91.62 in $F_1$ score) is
 		\cite{collobert2011natural} & \cmark & \xmark & \cmark & \cmark & \xmark & 89.59  \\
 		\cite{huang2015bidirectional} &\cmark & \cmark & \cmark & \cmark & \cmark & 90.10 \\
 		\cite{rondeau2016lstm}  & \cmark & \xmark & \cmark & \cmark & \cmark & 89.28 \\
-		\cite{chiu2016named} \footnote{The actual training set is the combination of training-set and dev-set.} & \cmark & \cmark & \cmark & \xmark & \xmark & {\bf 91.62} \\
+		\cite{chiu2016named} & \cmark & \cmark & \cmark & \xmark & \xmark & {\bf 91.62} \\
 		\hline \hline
 		{\bf this work} & \cmark & \cmark & \xmark & \xmark & \xmark & {\bf 90.71} \\
 		\hline
@@ -800,7 +808,7 @@ In our systems, we treat all nominal mentions as special types of named entities
 
 \section{Conclusion}
 
-In this paper, we propose a novel, simple and efficient solution to NER and MD by applying DNN on top of FOFE-based features.
+In this paper, we propose a novel and simple solution to NER and MD by applying DNN on top of FOFE-based features.
 This simpler approach achieves performance very close to state-of-the-art on various NER and MD tasks, without using any external knowledge or feature engineering.
 
 %In this paper, we have proposed a new local detection based approach, which rely on the recent fixed-size ordinally forgetting encoding (FOFE) method to fully encode each fragment and its left/right contexts into a fixed-size representation. Afterwards, a simple neural network is used to reject or predict entity label for each individual fragment. The proposed method has been evaluated in several popular NER and mention detection tasks, including the CoNLL 2003 NER task and  TAC-KBP2015 and TAC-KBP2016 Tri-lingual Entity Discovery and Linking (EDL) tasks. Our methods have yielded pretty strong performance in all of these examined tasks. 
