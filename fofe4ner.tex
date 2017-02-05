@@ -800,7 +800,10 @@ In our systems, we treat all nominal mentions as special types of named entities
 
 \section{Conclusion}
 
-In this paper, we have proposed a new local detection based approach, which rely on the recent fixed-size ordinally forgetting encoding (FOFE) method to fully encode each fragment and its left/right contexts into a fixed-size representation. Afterwards, a simple neural network is used to reject or predict entity label for each individual fragment. The proposed method has been evaluated in several popular NER and mention detection tasks, including the CoNLL 2003 NER task and  TAC-KBP2015 and TAC-KBP2016 Tri-lingual Entity Discovery and Linking (EDL) tasks. Our methods have yielded pretty strong performance in all of these examined tasks. 
+In this paper, we propose a novel, simple and efficient solution to NER and MD by applying DNN on top of FOFE-based features.
+This simpler approach achieves performance very close to state-of-the-art on various NER and MD tasks, without using any external knowledge or feature engineering.
+
+%In this paper, we have proposed a new local detection based approach, which rely on the recent fixed-size ordinally forgetting encoding (FOFE) method to fully encode each fragment and its left/right contexts into a fixed-size representation. Afterwards, a simple neural network is used to reject or predict entity label for each individual fragment. The proposed method has been evaluated in several popular NER and mention detection tasks, including the CoNLL 2003 NER task and  TAC-KBP2015 and TAC-KBP2016 Tri-lingual Entity Discovery and Linking (EDL) tasks. Our methods have yielded pretty strong performance in all of these examined tasks. 
 
 %Obviously, this FOFE-based local detection approach can be easily extended to tackle many other NLP tasks, such as chunking, POS tagging, entity linking, semantic parsing. We will report our progresses in these new tasks in the future.  
 
