@@ -166,7 +166,7 @@ these successes are often established by sophisticated models combining CNNs, LS
 
 \begin{figure*}[t]
 	\centering
-	\includegraphics[width=0.86\linewidth]{figure-diagram-v4}
+	\includegraphics[width=0.86\linewidth]{figure-diagram-v5}
 	\caption{Illustration of the local detection approach for NER using FOFE codes as input and an FFNN as model. The window currently examines the fragment of {\it Toronto Maple Leafs}. The window will scan and scrutinize all fragments up to $K$ words. }
 	\label{Fig:FOFE-NER-diagram}
 \end{figure*}
@@ -254,22 +254,22 @@ Obviously, the size of $\bm{z_t}$ is $|V|$, and it is irrelevant to the length o
 Here's an example. Assume that we have three words in our vocabulary, e.g. A, B, C, 
 whose one-hot representations are $[1, 0, 0]$, $[0, 1, 0]$ and $[0, 0, 1]$ respectively. 
 When calculating from left to right, the FOFE for the sequence 
-%"ABC" is $[{\alpha}^2, {\alpha}, 1]$， 
-%and that of 
+"ABC" is $[{\alpha}^2, {\alpha}, 1]$， 
+and that of 
 "ABCBC" is $[{\alpha}^4, {\alpha} + {\alpha}^3, 1 + {\alpha}^2]$.
 
 The word sequences can be unequivocally recovered from their FOFE representations \cite{zhang2015fixed}.
-The uniqueness of FOFE representation is theoretically guaranteed.
-%by the following two theorems: 
-%\begin{theorem}
-%	If the forgetting factor $\alpha$ satisfies $0 < \alpha \leq 0.5$, FOFE is unique for any countable vocabulary $V$ and any finite value $T$.
-%\end{theorem}
-%\begin{theorem}
-%	For $0.5 < \alpha < 1 $, given any finite value $T$ and any countable vocabulary $V$,
-%	FOFE is almost unique everywhere, except only a finite set of countable choices of $\alpha$.
-%\end{theorem}
-%Though in theory uniqueness is not guaranteed when $\alpha$ is chosen from $0.5$ to $1$, 
-%in practice the chance of hitting such scenarios is extremely slim, almost impossible due to quantization errors in the system. 
+The uniqueness of FOFE representation is theoretically guaranteed
+by the following two theorems: 
+\begin{theorem}
+	If the forgetting factor $\alpha$ satisfies $0 < \alpha \leq 0.5$, FOFE is unique for any countable vocabulary $V$ and any finite value $T$.
+\end{theorem}
+\begin{theorem}
+	For $0.5 < \alpha < 1 $, given any finite value $T$ and any countable vocabulary $V$,
+	FOFE is almost unique everywhere, except only a finite set of countable choices of $\alpha$.
+\end{theorem}
+Though in theory uniqueness is not guaranteed when $\alpha$ is chosen from $0.5$ to $1$, 
+in practice the chance of hitting such scenarios is extremely slim, almost impossible due to quantization errors in the system. 
 Furthermore, in natural languages, normally a word does not appear repeatedly within a near context. 
 %Simply put, FOFE is capable of uniquely encoding any sequence of arbitrary length, serving as a fixed-size but theoretically lossless representation for any sequence.
 
@@ -277,7 +277,9 @@ Furthermore, in natural languages, normally a word does not appear repeatedly wi
 \subsection {Character-level Models in NLP}
 \label{subsec_char_feature}
 
-\newcite{kim2015character} models morphology in the character level since this may provide some additional advantages in dealing with unknown or out-of-vocabulary (OOVs) words in a language.
+\newcite{kim2015character} models morphology in the character level since this may provide some additional advantages in dealing with unknown or out-of-vocabulary (OOVs) words in a language. In the literature, convolutional neural networks (CNNs) have been widely used as character-level models in NLP \cite{kim2015character}. 
+A trainable character embedding is initialized based on a set of possible characters. When a word frament comes, character vectors are retrieved according to its spelling to construct a matrix. This matrix can be viewed as a single-channel image. CNN is applied to generate a more abstract representation of the word fragment.
+
 The above FOFE method can be easily extended to model character-level feature in NLP. Any word, phrase or fragment can be viewed as a sequence of characters. Based on a pre-defined set of all possible characters, we apply the same FOFE method to encode the sequence of characters. This always leads to a fixed-size representation, irrelevant to the number of characters in question. 
 For example, a word fragment of ``Walmart'' may be viewed as a 
 sequence of seven characters: `W', `a', `l', `m', `a', `r', `t'.
@@ -285,25 +287,25 @@ sequence of seven characters: `W', `a', `l', `m', `a', `r', `t'.
 They are
 always fixed-sized and they can be directly fed to an FFNN for morphology modeling. 
 
-In the literature, convolutional neural networks (CNNs) have been widely used as character-level models in NLP \cite{kim2015character}. 
-Let $C$ denote the set of possible characters, and $D$ denote the dimensionality of character embeddings.
-A $|C| \times D$ matrix $\bm{M}$ is randomly initialized, where the $i$-th row denotes the vector representation of the $i$-th character in $C$. Given a word or fragment whose spelling is $[c_1, c_2, c_3, ..., c_L]$, 
-an $L \times D$ matrix $\bm{C}$ is constructed,  where the $j$-th row is a copy of the row in  $\bm{M}$ corresponding to $c_j$. $\bm{C}$ can be viewed as a single-channel image. 
-Let $\bm{F}$ be an $h \times D$ convolution kernel to be learned,  where $h$ denotes the number of used feature maps. 
-An intermediate vector $\bm{v}$ of $l-h+1$ elements is generated after $\bm{f}$ sweeps $\bm{m}$. Each component in $\bm{v}$,  $v_k$,  is computed as:
-\begin{equation}
-\label{eq:conv}
-v_k = \sigma(Trace(\bm{F}\bm{C}[k:k+h]))
-\end{equation}
-where $\sigma$ is either sigmoid or ReLU \cite{glorot2011deep}.
-% which is defined in the previous sub-section.
-The output  $y$ of this kernel is given by:
-\begin{equation}
-\label{eq:max-pool}
-y = \max(v_1, v_2, ..., v_{l-h+1})
-\end{equation}
-If there are $N$ groups of kernels, each of which has $n_1$, $n_2$, $n_3$, ... , ${n_{|N|}}$ kernels respectively,
-following Eqs. (\ref{eq:conv}) and (\ref{eq:max-pool}), the final representation from the character CNN for this word or fragment is a vector of length $\sum_{i=1}^{|N|} n_{i}$.
+%In the literature, convolutional neural networks (CNNs) have been widely used as character-level models in NLP \cite{kim2015character}. 
+%Let $C$ denote the set of possible characters, and $D$ denote the dimensionality of character embeddings.
+%A $|C| \times D$ matrix $\bm{M}$ is randomly initialized, where the $i$-th row denotes the vector representation of the $i$-th character in $C$. Given a word or fragment whose spelling is $[c_1, c_2, c_3, ..., c_L]$, 
+%an $L \times D$ matrix $\bm{C}$ is constructed,  where the $j$-th row is a copy of the row in  $\bm{M}$ corresponding to $c_j$. $\bm{C}$ can be viewed as a single-channel image. 
+%Let $\bm{F}$ be an $h \times D$ convolution kernel to be learned,  where $h$ denotes the number of used feature maps. 
+%An intermediate vector $\bm{v}$ of $l-h+1$ elements is generated after $\bm{f}$ sweeps $\bm{m}$. Each component in $\bm{v}$,  $v_k$,  is computed as:
+%\begin{equation}
+%\label{eq:conv}
+%v_k = \sigma(Trace(\bm{F}\bm{C}[k:k+h]))
+%\end{equation}
+%where $\sigma$ is either sigmoid or ReLU \cite{glorot2011deep}.
+%% which is defined in the previous sub-section.
+%The output  $y$ of this kernel is given by:
+%\begin{equation}
+%\label{eq:max-pool}
+%y = \max(v_1, v_2, ..., v_{l-h+1})
+%\end{equation}
+%If there are $N$ groups of kernels, each of which has $n_1$, $n_2$, $n_3$, ... , ${n_{|N|}}$ kernels respectively,
+%following Eqs. (\ref{eq:conv}) and (\ref{eq:max-pool}), the final representation from the character CNN for this word or fragment is a vector of length $\sum_{i=1}^{|N|} n_{i}$.
 
 \section{FOFE-based Local Detection for NER}
 
