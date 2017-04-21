@@ -546,6 +546,7 @@ TAC-KBP2015 and TAC-KBP2016 Tri-lingual Entity Discovery and Linking (EDL) tasks
 %\footnote{We have made our codes available at https://github.com/user-name/project-name for readers to reproduce the results in this paper.}
 
 \subsection{CoNLL 2003 NER task}
+\label{exp-subsec:conll2003}
 
 \begin{table*}[h!]
 	\centering
@@ -579,7 +580,18 @@ TAC-KBP2015 and TAC-KBP2016 Tri-lingual Entity Discovery and Linking (EDL) tasks
 \end{table*}
 
 The CoNLL-2003 dataset \cite{tjong2003introduction} consists of newswire from the Reuters RCV1 corpus tagged with four types of non-nested named entities: location (LOC), organization (ORG), person (PER), and miscellaneous (MISC).
-We have investigated the performance of our method on the CoNLL-2003 dataset by using different combinations of the FOFE features (both word-level and character-level). The detailed comparison results are shown in Table \ref{tbl:feat-cmp:CoNLL03}.  In Table \ref{tbl:nn-cmp:CoNLL03}, we have compared our best performance with some top-performing neural network systems on this task. As we can see from Table \ref{tbl:nn-cmp:CoNLL03}, our system (highest-first decoding) yields a very strong performance (90.71 in $F_1$ score) in this task, outperforming most of neural network models reported on this dataset. More importantly, we have not used any hand-crafted features in our systems, and all features (either word or character level) are automatically derived from the data. 
+
+The top 100,000 words, are kept as vocabulary, including punctuations. For the case-sensitive embedding, an OOV is mapped to <unk> if it contains no upper-case letter and <UNK> otherwise. We perform grid search on several hyper-parameters using a held-out dev set. Here we summarize the set of hyper-parameters used in our experiments:
+i) {\it Learning rate}: initially set to 0.128 and is multiplied by a decay factor each epoch so that it reaches 1/16 of the initial value at the end of the training;
+ii) {\it Network structure}: 3 fully-connected layers of 512 nodes with ReLU activation, randomly initialized based on a uniform distribution between $-\sqrt{\frac{6}{N_i + N_o}}$  and $\sqrt{\frac{6}{N_i + N_o}}$ \cite{glorot2011deep};
+iii) {\it Character embeddings}: 64 dimensions, randomly initialized.
+iv) {\it mini-batch}: 512;
+v) {\it Dropout rate}: initially set to 0.4, slowly decreased during training until it reaches 0.1 at the end.
+vi) {\it Number of epochs}: 128;
+vii){\it Embedding matrices} case-sensitive and case-insensitive word embeddings of 256 dimensions, trained from Reuters RCV1;
+viii) We stick to the official data train-dev-test partition. ix) {\it Forgetting factor $\alpha$}: 0.5. \footnote{The choice of the forgetting factor $alpha$ is empirical. We've evaluated $\alpha = 0.5,0.6,0.7,0.8$ on a development set in some early experiments. It turns out that $\alpha = 0.5$ is the best. As a result, $\alpha = 0.5$ is used for all NER/MD tasks throughout this paper.}
+
+We have investigated the performance of our method on the CoNLL-2003 dataset by using different combinations of the FOFE features (both word-level and character-level). The detailed comparison results are shown in Table \ref{tbl:feat-cmp:CoNLL03}. In Table \ref{tbl:nn-cmp:CoNLL03}, we have compared our best performance with some top-performing neural network systems on this task. As we can see from Table \ref{tbl:nn-cmp:CoNLL03}, our system (highest-first decoding) yields a very strong performance (90.71 in $F_1$ score) in this task, outperforming most of neural network models reported on this dataset. More importantly, we have not used any hand-crafted features in our systems, and all features (either word or character level) are automatically derived from the data. 
 %based on the simple FOFE formula. 
 In \cite{chiu2016named}\footnote{In their work, they have used a combination of training-set and dev-set to train the model, differing from all other systems (including ours) in Table \ref{tbl:nn-cmp:CoNLL03}.}, a slightly better performance (91.62 in $F_1$ score) is reported but a customized gazetteer is used in their method.
 
@@ -624,13 +636,37 @@ In \cite{chiu2016named}\footnote{In their work, they have used a combination of 
 
 
 \subsection{KBP2015 EDL Task}
+\label{subsec:kbp2015}
 
-Given a document collection in three languages (English, Chinese and Spanish), the KBP2015 tri-lingual EDL task \cite{kbpoverview2015} requires to automatically identify entities \textbf{(including nested entities)}  from a
-source collection of textual documents in multiple
+Given a document collection in three languages (English, Chinese and Spanish), the KBP2015 tri-lingual EDL task \cite{kbpoverview2015} requires to automatically identify entities \textbf{(including nested entities)}  from asource collection of textual documents in multiple
 languages, and classify them into one of the following pre-defined
 five types: Person (PER), Geo-political Entity
 (GPE), Organization (ORG), Location (LOC)
-and Facility (FAC).
+and Facility (FAC). The corpus consists of news articles and discussion forum posts published in recent years, related but non-parallel across languages. 
+
+\begin{table}
+	%\resizebox{\linewidth}{!}{
+		\centering
+		\begin{tabular}{|l|c|c|c|c|}
+			\hline
+			& English & Chinese & Spanish & ALL \\
+			\hline
+			Train & 168 & 147 & 129 & 444 \\
+			Eval & 167 & 167 & 166 & 500 \\
+			\hline
+		\end{tabular}%}
+	\caption{Number of Documents in KBP2015}
+	\label{tbl:kbp2015stat}
+\end{table}
+
+
+Three models are trained and evaluated independantly. Unless explicitly listed, hyper parameters follow those in CoNLL2003 \ref{exp-subsec:conll2003}. Three sets of word embeddings of 128 dimensions are derived from English Gigaword \cite{parker2011english}, Chinese Gigaword \cite{graff2005chinese} and Spanish Gigaword \cite{mendonca2009spanish} respectively. Some language-specific modifications are made:
+
+\begin{itemize}
+	\item {\bf Chinese}: Because Chinese segmentation is not reliable, we label Chinese at character level. The analogous roles of case-sensitive word-embedding and case-sensitive word-embedding are played by character embedding and word-embedding in which the character appears. Neither Char FOFE features nor Char CNN features are used. 
+	\item {\bf Spanish}: Character set of Spanish is a super set of that of English. When building character-level features, we use the mod function to hash each character's UTF8 encoding into a number between 0 (inclusive) and 128 (exclusive).
+\end{itemize}
+
 As shown in Table \ref{Table_KBP2015_ED}, our FOFE-based local detection method has obtained fairly strong performance in the KBP2015 dataset. The overall trilingual entity discovery performance is slightly better than the best system participated in the official KBP2015 evaluation, with $73.9$ vs. $72.4$ as measured by $F_1$ scores. Outer and inner decodings are {\it longest-first} and {\it hightest-first} respectively.
 
 \begin{table}
@@ -684,18 +720,25 @@ In KBP2016, the trilingual EDL task is extended to detect nominal mentions of al
 
 %For the KBP2016 trilingual EDL task, we make use of the following data sets as our training data to learn the NER and mention detection models. 
 %In EDL task, we make use of three training data:
-We make use of three sets of training data:
+
+\subsubsection{Data Description}
+No offical training set is provided in KBP2016. We make use of three sets of training data:
 
 \begin{itemize}
-	\item \textbf{Training and evaluation data in KBP2015}: In KBP2015, 335 English documents, 313 Chinese documents and 296 Spanish documents were annotated for training and evaluation, totalling 944 documents. Five named mention types (PER, ORG, GPE, LOC, FAC) and one nominal mention type (PER) are labeled. 
+	\item \textbf{Training and evaluation data in KBP2015}: as described in \ref{subsec:kbp2015}
+	%In KBP2015, 335 English documents, 313 Chinese documents and 296 Spanish documents were annotated for training and evaluation, totalling 944 documents. Five named mention types (PER, ORG, GPE, LOC, FAC) and one nominal mention type (PER) are labeled. 
 %	In KBP2016, nominal mention has been expanded to all 5 classes of named entities.
 	
-	\item \textbf{Machine-labeled Wikipedia}: When terms or names are first mentioned in a Wikipedia article they are often linked to the corresponding Wikipedia page by hyperlinks, which clearly highlights the possible named entities with well-defined boundary in the text. We have developed a program to automatically map these hyperlinks into KBP annotations by exploring the infobox (if existing) of the destination page and/or examining the corresponding Freebase types. Meanwhile, a gazeteer is created and used in KBP2016.
+	\item \textbf{Machine-labeled Wikipedia (WIKI)}: When terms or names are first mentioned in a Wikipedia article they are often linked to the corresponding Wikipedia page by hyperlinks, which clearly highlights the possible named entities with well-defined boundary in the text. We have developed a program to automatically map these hyperlinks into KBP annotations by exploring the infobox (if existing) of the destination page and/or examining the corresponding Freebase types. Meanwhile, a gazeteer is created and used in KBP2016.
 %	In this way, we have created a fairly large amount of  weakly-supervised trilingual training data for the KBP2016 EDL task.
 	
 	\item \textbf{In-house dataset}: A set of 10,000 English and Chinese documents is manually labeled using some annotation rules similar to the KBP 2016 guidelines.
 	
 \end{itemize}
+
+We normally split the available data into training, validation and evaluation sets in a ratio of 90:5:5. The models are trained for 256 epochs if the in-house data is not used, and 64 epochs otherwise.
+
+
 
 %Additionally, when we generate the machine-labeled data from Wikipedia, we have also created a large gazetteer using the titles of Wikipedia pages and Freebase nodes. 
 %We have used the gazetteer-related features for the KBP2016 EDL task.
@@ -709,14 +752,9 @@ We make use of three sets of training data:
 %The extracted text is sent to the Stanford CoreNLP toolkit for sentence splitting and tokenization.  
 %All words containing digits are mapped to several pre-defined tokens, e.g. $\langle number \rangle$, $\langle date \rangle$, using some regular expression matches.   
 
-\subsection{Hyperparameter optimization}
+%\subsection{Hyperparameter optimization}
 
-We perform grid search on several hyper-parameters using a held-out dev set. Here we summarize the set of hyper-parameters used in our experiments:
-i) {\it Learning rate}: initially set to 0.128 and is multiplied by a decay factor each epoch so that it reaches 1/16 of the initial value at the end of the training;
-ii) {\it Network structure}: 3 fully-connected layers of 512 nodes with ReLU activation, randomly initialized based on a uniform distribution between $-\sqrt{\frac{6}{N_i + N_o}}$  and $\sqrt{\frac{6}{N_i + N_o}}$ \cite{glorot2011deep};
-iii) {\it Character embeddings}: 64 dimensionare, randomly initialized.
-iv) {\it mini-batch}: 512;
-v) {\it Dropout rate}: initially set to 0.4, slowly decreased during training until it reaches 0.1 at the end.
+
 
 %, 
 %including initial learning, mini-batch size, initial dropout, 
@@ -724,18 +762,16 @@ v) {\it Dropout rate}: initially set to 0.4, slowly decreased during training un
 %Each hyper-parameter typically has 3 to 5 options during the grid search. 
 
 
-\begin{itemize}
-	\item \textbf{KBP series}:
-	i) {\it Number of epochs}: 256 epochs if the in-house data is used in training, 64 epochs otherwise; ii)
-	ii) {\it Embedding matrices}: 
-	case-sensitive and case-insensitive word embeddings of 128 dimensions for three languages are pre-trained from English Gigaword, Chinese Wikipedia and Spanish Gigaword using the {\em word2vec} tool \cite{mikolov2013distributed};
-	iii) We normally split the available training data into training, validation and evaluation sets in a ratio of 90:5:5.
+%\begin{itemize}
+%	\item \textbf{KBP series}:
+%	i) {\it Number of epochs}: 256 epochs if the in-house data is used in training, 64 epochs otherwise; ii)
+%	ii) {\it Embedding matrices}: 
+%	case-sensitive and case-insensitive word embeddings of 128 dimensions for three languages are pre-trained from English Gigaword, Chinese Wikipedia and Spanish Gigaword using the {\em word2vec} tool \cite{mikolov2013distributed};
+%	iii) We normally split the available training data into training, validation and evaluation sets in a ratio of 90:5:5.
 	
-	\item \textbf{CoNLL2003}:
-	i) {\it Number of epochs}: 128;
-	ii){\it Embedding matrices} case-sensitive and case-insensitive word embeddings of 256 dimensions, trained from Reuters RCV1;
-	iii) We stick to the official data train-dev-test partition.  
-\end{itemize}
+	%\item \textbf{CoNLL2003}:
+	 
+%\end{itemize}
 
 
 %\begin{itemize}
@@ -748,7 +784,7 @@ v) {\it Dropout rate}: initially set to 0.4, slowly decreased during training un
 %\end{itemize}
 
 
-\subsection{Effect of various training data}
+\subsubsection{Effect of various training data}
 
 In our first set of experiments, we investigate the effect of using different training data sets on the final entity discovery performance. 
 Different training runs are conducted on different combinations of the aforementioned data sources.
@@ -772,7 +808,7 @@ In Table \ref{tbl:kbp2016-EDL1}, we have summarized the official English entity 
 \end{table}
 
 
-\subsection{The official trilingual performance in KBP2016 EDL}
+\subsubsection{The official trilingual performance in KBP2016 EDL}
 
 
 %After fixing some system bugs, we have used both the KBP2015 data and iFLYTEK data to re-train our models for three languages and finally submitted three systems to the final KBP2016 EDL2 evaluation. 
