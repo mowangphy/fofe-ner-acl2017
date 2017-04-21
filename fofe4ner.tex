@@ -80,13 +80,13 @@
 
 
 \begin{abstract}
-	In this paper, we study a novel approach for named entity recognition (NER) and mention detection (MD) in natural language processing. Instead of treating NER as a sequence labeling problem, we propose a new local detection approach, which relies on the recent fixed-size ordinally forgetting encoding (FOFE) method to fully encode each sentence fragment and its left/right contexts into a fixed-size representation. Afterwards, a simple feedforward neural network (FFNN) either rejects or predicts entity label for each individual fragment. The proposed method has been evaluated in several popular NER and MD tasks, including CoNLL 2003 NER task and  TAC-KBP2015 and TAC-KBP2016 Tri-lingual Entity Discovery and Linking (EDL) tasks. Our method has yielded pretty strong performance in all of these examined tasks. This local detection approach has shown many advantages over the traditional sequence labeling  methods.
+	In this paper, we study a novel approach for named entity recognition (NER) and mention detection (MD) in natural language processing. Instead of treating NER as a sequence labeling problem, we propose a new local detection approach, which relies on the recent fixed-size ordinally forgetting encoding (FOFE) method to fully encode each sentence fragment and its left/right contexts into a fixed-size representation. Subsequently, a simple feedforward neural network (FFNN) either rejects or predicts entity label for each individual fragment. The proposed method has been evaluated in several popular NER and MD tasks, including CoNLL 2003 NER task and  TAC-KBP2015 and TAC-KBP2016 Tri-lingual Entity Discovery and Linking (EDL) tasks. Our method has yielded pretty strong performance in all of these examined tasks. This local detection approach has shown many advantages over the traditional sequence labeling  methods.
 \end{abstract}
 
 
 \section{Introduction}
 
-Natural language processing (NLP) plays an important role in artificial intelligence, which has been extensively studied for many decades. Conventional NLP techniques include the rule-based symbolic approaches widely used about two decades ago, and the more recent statistic approaches relying on feature engineering and statistical models. In the recent years, deep learning approach has achieved huge successes in many applications, ranging from speech recognition to image classification. It is drawing increasing attention in the NLP community. 
+Natural language processing (NLP) plays an important role in artificial intelligence, which has been extensively studied for many decades. Conventional NLP techniques include the rule-based symbolic approaches widely used about two decades ago, and the more recent statistical approaches relying on feature engineering and statistical models. In the recent years, deep learning approach has achieved huge successes in many applications, ranging from speech recognition to image classification. It is drawing increasing attention in the NLP community. 
 
 In this paper, we are interested in a fundamental problem in NLP, namely named entity recognition (NER) and mention detection (MD). NER and MD is a very challenging task in NLP, laying the foundation of almost every NLP application.
 NER and MD is a task of identifying entities (named and/or nominal) from raw text, and classifying the detected entities into one of the pre-defined categories such as person (PER), organization (ORG), location (LOC), etc. Some tasks focus on named entities only, 
@@ -96,7 +96,7 @@ NER and MD is a task of identifying entities (named and/or nominal) from raw tex
 %	\small
 %	${[S.E.C.]}_{ORG}$ chief ${[Mary\ Shapiro]}_{PER}$ left ${[Washington]}_{LOC}$ in December .
 %\end{quote}
-while the others also detects nominal mentions. %, for example
+while the others also detect nominal mentions. %, for example
 %which are important for other NLP tasks such as co-reference resolution
 %\begin{quote}
 %	\label{emp:10types}
@@ -117,11 +117,11 @@ where {\it Toronto} is a LOC entity, embedded in another longer ORG entity {\it 
 
 Similar to many other NLP problems, NER and MD is formulated as a sequence labeling problem, where a tag is sequentially assigned to each word in the input sentence. It has been extensively studied in the NLP community \cite{borthwick1998exploiting}. The core problem is to model the conditional probability of an output sequence given an arbitrary input sequence. Many hand-crafted features are combined with statistical models, such as conditional random fields (CRFs) \cite{nguyen2010kernel}, to compute conditional probabilities. More recently, some popular neural networks, including convolutional neural networks (CNNs) and recurrent neural networks (RNNs), are proposed to solve sequence labelling problems.
 %under the popular sequence to sequence modeling framework. The relevant work will be briefly reviewed in Section \ref{sec_related_work}. 
-In the test stage, the learned models compute the conditional probabilities and the output sequence is generated by the 
+In the inference stage, the learned models compute the conditional probabilities and the output sequence is generated by the 
 %well-known 
 Viterbi decoding algorithm \cite{Viterbi1967err}. 
 
-In this paper, we propose a novel local detection approach of solving NER and MD problems. The idea can be easily extended to many other sequence labeling problems, such as chunking, part-of-speech tagging (POS). Instead of globally modeling the whole sequence in training and jointly decode the entire output sequence in test, 
+In this paper, we propose a novel local detection approach for solving NER and MD problems. The idea can be easily extended to many other sequence labeling problems, such as chunking, part-of-speech tagging (POS). Instead of globally modeling the whole sequence in training and jointly decode the entire output sequence in test, 
 our method examines all word segments (up to a certain length) in a sentence. A word segment will be examined individually based on the underlying segment itself and its left and right contexts in the sentence so as to determine whether this word segment is a valid named entity and the corresponding label if it is. 
 This approach conforms to the way human resolves an NER problem. Given any word fragment and its contexts in a sentence or paragraph, people accurately determine whether this word segment is a named entity or not. People rarely conduct a global decoding over the entire sentence to make such a decision. 
 The key to making an accurate local decision for each individual fragment is to have full access to the fragment itself as well as its complete contextual information. 
@@ -277,8 +277,8 @@ Furthermore, in natural languages, normally a word does not appear repeatedly wi
 \subsection {Character-level Models in NLP}
 \label{subsec_char_feature}
 
-\newcite{kim2015character} models morphology in the character level since this may provide some additional advantages in dealing with unknown or out-of-vocabulary (OOVs) words in a language. In the literature, convolutional neural networks (CNNs) have been widely used as character-level models in NLP \cite{kim2015character}. 
-A trainable character embedding is initialized based on a set of possible characters. When a word frament comes, character vectors are retrieved according to its spelling to construct a matrix. This matrix can be viewed as a single-channel image. CNN is applied to generate a more abstract representation of the word fragment.
+\newcite{kim2015character} model morphology in the character level since this may provide some additional advantages in dealing with unknown or out-of-vocabulary (OOVs) words in a language. In the literature, convolutional neural networks (CNNs) have been widely used as character-level models in NLP \cite{kim2015character}. 
+A trainable character embedding is initialized based on a set of possible characters. When a word fragment comes, character vectors are retrieved according to its spelling to construct a matrix. This matrix can be viewed as a single-channel image. CNN is applied to generate a more abstract representation of the word fragment.
 
 The above FOFE method can be easily extended to model character-level feature in NLP. Any word, phrase or fragment can be viewed as a sequence of characters. Based on a pre-defined set of all possible characters, we apply the same FOFE method to encode the sequence of characters. This always leads to a fixed-size representation, irrelevant to the number of characters in question. 
 For example, a word fragment of ``Walmart'' may be viewed as a 
@@ -369,7 +369,7 @@ Alternatively, we may use the character CNNs, as described in Section \ref{subse
 
 \section{Training and Decoding Algorithm}
 
-Obviously, the above \textbf{FOFE-NER} model will take each sentence of words, $S = [w_1, w_2, w_3, ..., w_m]$, as input, and examine all continuous sub-sequences $[w_i, w_{i+1}, w_{i+2}, ..., w_{j}]$ up to $n$ words in $S$ for  possible entity types. All sub-sequence longer than $n$ words are considered as non-entity in this work. 
+Obviously, the above \textbf{FOFE-NER} model will take each sentence of words, $S = [w_1, w_2, w_3, ..., w_m]$, as input, and examine all continuous sub-sequences $[w_i, w_{i+1}, w_{i+2}, ..., w_{j}]$ up to $n$ words in $S$ for  possible entity types. All sub-sequences longer than $n$ words are considered as non-entities in this work. 
 
 When we train the model, based on the entity labels of all sentences in the training set, we will generate many sentence fragments up to $n$ words. These fragments fall into three categories:
 \begin{itemize}
@@ -381,8 +381,8 @@ When we train the model, based on the entity labels of all sentences in the trai
 For all exact-matched fragments, we generate the corresponding outputs based on the types of the matched entities in the training set. For both partial-overlap and disjoint fragments, we introduce a new output label, {\bf NONE}, to indicate that these fragments are not a valid entity. Therefore, the output nodes in the neural networks contains all entity types plus a rejection option denoted as {\bf NONE}.
 
 %Let $feature$ be the function that extracts features of the sub-sequence and $DNN_{fofe}$  be the model that learns to map from feature space to label space. 
-During training, we implement a produce-consumer software design such that 
-a thread fetches training examples, compute all FOFE codes and packs them as a mini-batch while the other thread feeds the mini-batches to neural networks and adjusts the model parameters and all projection matrices. 
+During training, we implement a producer-consumer software design such that 
+a thread fetches training examples, computes all FOFE codes and packs them as a mini-batch while the other thread feeds the mini-batches to neural networks and adjusts the model parameters and all projection matrices. 
 Since ``partial-overlap'' and ``disjoint'' significantly outnumber ``exact-match'', they are down-sampled so as to balance the data set. %The training procedure is illustrated in Algorithm \ref{algo:train}.
 
 %\begin{algorithm}
@@ -605,16 +605,17 @@ In \cite{chiu2016named}\footnote{In their work, they have used a combination of 
 
 \begin{table*}[h!]
 	\centering
-	\begin{tabular}{|l|lllll|l|}
+	\begin{tabular}{|l|l|lllll|l|}
 		\hline
-		& word & char & gaz & cap & pos & F1 \\
+		& algorithm & word & char & gaz & cap & pos & F1 \\
 		\hline\hline
-		\cite{collobert2011natural} & \cmark & \xmark & \cmark & \cmark & \xmark & 89.59  \\
-		\cite{huang2015bidirectional} &\cmark & \cmark & \cmark & \cmark & \cmark & 90.10 \\
-		\cite{rondeau2016lstm}  & \cmark & \xmark & \cmark & \cmark & \cmark & 89.28 \\
-		\cite{chiu2016named} & \cmark & \cmark & \cmark & \xmark & \xmark & {\bf 91.62} \\
+		\cite{collobert2011natural} & {CNN-BLSTM-CRF} & \cmark & \xmark & \cmark & \cmark & \xmark & 89.59  \\
+		\cite{huang2015bidirectional} & {BLSTM-CRF} &\cmark & \cmark & \cmark & \cmark & \cmark & 90.10 \\
+		\cite{rondeau2016lstm} & {BLSTM-CRF} & \cmark & \xmark & \cmark & \cmark & \cmark & 89.28 \\
+		\cite{chiu2016named} & {BLSTM-CRF, char-CNN} & \cmark & \cmark & \cmark & \xmark & \xmark & {\bf 91.62} \\
+		\cite{lample2016neural} & {Stack-LSTM-CRF, char-LSTM} & \cmark & \cmark & \xmark & \xmark & \xmark & {\bf 90.94} \\
 		\hline \hline
-		{\bf this work} & \cmark & \cmark & \xmark & \xmark & \xmark & {\bf 90.71} \\
+		{\bf this work} & {local FOFE} & \cmark & \cmark & \xmark & \xmark & \xmark & {\bf 90.71} \\
 		\hline
 	\end{tabular}
 	\caption{Performance ($F_1$ score) comparison among various neural models reported on the CoNLL dataset, and the different features used in these methods.}
@@ -683,7 +684,7 @@ In KBP2016, the trilingual EDL task is extended to detect nominal mentions of al
 
 %For the KBP2016 trilingual EDL task, we make use of the following data sets as our training data to learn the NER and mention detection models. 
 %In EDL task, we make use of three training data:
-We make use of three training data:
+We make use of three sets of training data:
 
 \begin{itemize}
 	\item \textbf{Training and evaluation data in KBP2015}: In KBP2015, 335 English documents, 313 Chinese documents and 296 Spanish documents were annotated for training and evaluation, totalling 944 documents. Five named mention types (PER, ORG, GPE, LOC, FAC) and one nominal mention type (PER) are labeled. 
