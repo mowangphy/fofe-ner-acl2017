@@ -47,8 +47,8 @@
 \setlength{\floatsep}{5pt plus .5pt minus 1pt}
 \setlength{\intextsep}{5pt plus .5pt minus 1pt}
 
-%\aclfinalcopy % Uncomment this line for the final submission
-%\def\aclpaperid{***} %  Enter the acl Paper ID here
+\aclfinalcopy % Uncomment this line for the final submission
+\def\aclpaperid{268} %  Enter the acl Paper ID here
 
 %\setlength\titlebox{5cm}
 % You can expand the titlebox if you need extra space
@@ -59,13 +59,14 @@
 \newcommand\BibTeX{B{\sc ib}\TeX}
 
 
-\title{A FOFE-based Local Detection Approach for Named Entity Recognition and Mention Detection}
+\title{A FOFE-based Local Detection Approach for \\
+	Named Entity Recognition and Mention Detection}
 
-\author{Mingbin Xu \and Hui Jiang \\
+\author{Mingbin Xu, Hui Jiang, Sedtawut Watcharawittayakul \\
 	Department of Electrical Engineering and Computer Science \\
 	Lassonde School of Engineering, York University \\
 	4700 Keele Street, Toronto, Ontario, Canada\\
-	{\tt xmb@cse.yorku.ca} \and  {\tt hj@cse.yorku.ca}
+	{\tt \{xmb, hj, watchara\}@eecs.yorku.ca }
 	%\\\And
 	%Hui Jiang \\
 	%Lassonde School of Engineering, \\
@@ -85,6 +86,7 @@
 
 
 \section{Introduction}
+\label{sec:intro}
 
 Natural language processing (NLP) plays an important role in artificial intelligence, which has been extensively studied for many decades. Conventional NLP techniques include the rule-based symbolic approaches widely used about two decades ago, and the more recent statistical approaches relying on feature engineering and statistical models. In the recent years, deep learning approach has achieved huge successes in many applications, ranging from speech recognition to image classification. It is drawing increasing attention in the NLP community. 
 
@@ -440,7 +442,7 @@ Occasionally, some partially-overlapped or nested fragments may occur in the abo
 \end{enumerate}
 Either of these strategies leads to a collection of non-nested, non-overlapping, non-NONE entity labels.
 
-In some tasks, it may  require to label all nested entities. This has imposed a big challenge to the sequence labeling methods. However, the above post-processing can be slightly modified to generate nested entities' labels. In this case, we first run either {\it highest-first} or {\it longest-first} to generate the first round result. For every entity survived in this round, we will recursively run either {\it highest-first} or {\it longest-first} on all entities in the original set, which are completely contained by it. This will generate more prediction results. This process may continue to allow any levels of nesting. For example, for a sentence of ``$w_1$  $w_2$ $w_3$ $w_4$ $w_5$'', 
+In some tasks, it may require to label all nested entities. This has imposed a big challenge to the sequence labeling methods. However, the above post-processing can be slightly modified to generate nested entities' labels. In this case, we first run either {\it highest-first} or {\it longest-first} to generate the first round result. For every entity survived in this round, we will recursively run either {\it highest-first} or {\it longest-first} on all entities in the original set, which are completely contained by it. This will generate more prediction results. This process may continue to allow any levels of nesting. For example, for a sentence of ``$w_1$  $w_2$ $w_3$ $w_4$ $w_5$'', 
 if the model first generates the prediction results  after the global pruning, as  [``$w_2 w_3$'', PER, 0.7], [``$w_3 w_4$'', LOC, 0.8], [``$w_1 w_2 w_3 w_4$'', ORG, 0.9], if we choose to run {\it highest-first}, it will generate the first entity label as [``$w_1 w_2 w_3 w_4$'', ORG, 0.9]. Secondly, we will run {\it highest-first} on the two fragments that are completely contained by the first one, i.e.,  [``$w_2 w_3$'', PER, 0.7], [``$w_3 w_4$'', LOC, 0.8], then we will generate the second nested entity label as [``$w_3 w_4$'', LOC, 0.8].
 Fortunately, in any real NER and MD tasks, it is pretty rare to have overlapped predictions in the NN outputs. Therefore, the extra expense to run this recursive post-processing method is minimal. 
 
@@ -538,12 +540,37 @@ Fortunately, in any real NER and MD tasks, it is pretty rare to have overlapped 
 %\end{algorithm}
 
 
+\section{Second-Pass Augmentation}
+
+CRF brings marginal performance gain to all (but not limited to) NER taggers described in Section \ref{sec:intro} because of the dependancies (though fairly weak) between entity types. We add this level of information to our model by introducing another {\bf FOFE-NER}. We call them {\bf 1st-pass FOFE-NER} and {\bf 2nd-pass FOFE-NER}.
+
+{\bf 2nd-pass FOFE-NER} model is trained such that 
+when given a sentence $S = [w_1, w_2, ... w_i, ... w_j, ... w_n]$ and 
+scanning the segment $[w_i, ..., w_j]$, 
+every entity outside this segment is substituted by its entity type. For example, 
+\begin{quote}
+	\small
+	Google has also recruited Fei-Fei Li, director of the AI lab at Stanford University.
+\end{quote}
+is viewed as
+\begin{quote}
+	\small
+	$<ORG>$ has also recruited Fei-Fei Li, director of the AI lab at $<ORG>$.
+\end{quote}
+when examining the segment ``{\it Fei-Fei Li}''.
+%or similarly the segment ``'Li, director of'.
+
+During inference, the substitution is done by the results returned by the 1st-pass model. The scores from 1st-pass model and 2nd-pass model are linear interpolated and then decoded by either {\it highest-first} or {\it longest-first}. 
+
+{\bf 2nd-pass FOFE-NER} on the one hand captures the semantic roles of other entites while filter out unwanted constructs, and on the other hand enables longer context expansion, since FOFE memorizes contextual information in a unselective decaying fashion. 
+
+
 \section{Experiments}
 
 In this section, we evaluate the effectiveness of our proposed methods on several popular NER and MD tasks, including CoNLL 2003 NER task and 
 TAC-KBP2015 and TAC-KBP2016 Tri-lingual Entity Discovery and Linking (EDL) tasks.
-\footnote{Code will be released once the paper is accepted.}
-%\footnote{We have made our codes available at https://github.com/user-name/project-name for readers to reproduce the results in this paper.}
+%\footnote{Code will be released once the paper is accepted.}
+\footnote{We have made our codes available at https://github.com/xmb-cipher/fofe-ner for readers to reproduce the results in this paper.}
 
 \subsection{CoNLL 2003 NER task}
 \label{exp-subsec:conll2003}
@@ -572,7 +599,9 @@ TAC-KBP2015 and TAC-KBP2016 Tri-lingual Entity Discovery and Linking (EDL) tasks
 		\multicolumn{3}{|l|}{all word-level \& Char FOFE features} & 91.68 &  88.54 & \bf 90.08 \\
 		\multicolumn{3}{|l|}{all word-level \& Char CNN features} & 91.80 & 88.58 & \bf 90.16 \\ \hline
 		\multicolumn{3}{|l|}{all word-level \& all char-level features}  & 93.29 &  88.27 &  \bf 90.71  \\
-		\multicolumn{3}{|l|}{all features \bf{incl. dev set} + 5-fold cross-validation} & 92.58 &  89.31 &  \bf 90.92  \\
+		\multicolumn{3}{|l|}{all features + {\bf dev set} + 5-fold cross-validation} & 92.58 &  89.31 &  \bf 90.92  \\
+		\multicolumn{3}{|l|}{all features + {\bf 2nd-pass}} & 92.13 &  89.61 &  \bf 90.85  \\
+		\multicolumn{3}{|l|}{all features + {\bf 2nd-pass} + {\bf dev set} + 5-fold cross-validation} & 92.62 &  89.77 &  \bf 91.17 \\
 		\hline
 	\end{tabular}
 	\caption{Effect of various FOFE feature combinations on the CoNLL2003 test data.}
@@ -581,7 +610,7 @@ TAC-KBP2015 and TAC-KBP2016 Tri-lingual Entity Discovery and Linking (EDL) tasks
 
 The CoNLL-2003 dataset \cite{tjong2003introduction} consists of newswire from the Reuters RCV1 corpus tagged with four types of non-nested named entities: location (LOC), organization (ORG), person (PER), and miscellaneous (MISC).
 
-The top 100,000 words, are kept as vocabulary, including punctuations. For the case-sensitive embedding, an OOV is mapped to <unk> if it contains no upper-case letter and <UNK> otherwise. We perform grid search on several hyper-parameters using a held-out dev set. Here we summarize the set of hyper-parameters used in our experiments:
+The top 100,000 words, are kept as vocabulary, including punctuations. For the case-sensitive embedding, an OOV is mapped to $<unk>$ if it contains no upper-case letter and $<UNK>$ otherwise. We perform grid search on several hyper-parameters using a held-out dev set. Here we summarize the set of hyper-parameters used in our experiments:
 i) {\it Learning rate}: initially set to 0.128 and is multiplied by a decay factor each epoch so that it reaches 1/16 of the initial value at the end of the training;
 ii) {\it Network structure}: 3 fully-connected layers of 512 nodes with ReLU activation, randomly initialized based on a uniform distribution between $-\sqrt{\frac{6}{N_i + N_o}}$  and $\sqrt{\frac{6}{N_i + N_o}}$ \cite{glorot2011deep};
 iii) {\it Character embeddings}: 64 dimensions, randomly initialized.
@@ -615,7 +644,7 @@ In \cite{chiu2016named}\footnote{In their work, they have used a combination of 
 %	\label{tbl:nn-cmp:CoNLL03}
 %\end{table}
 
-\begin{table*}[h!]
+\begin{table*}
 	\centering
 	\begin{tabular}{|l|l|lllll|l|}
 		\hline
@@ -692,7 +721,7 @@ As shown in Table \ref{Table_KBP2015_ED}, our FOFE-based local detection method 
 
 \subsection{KBP2016 EDL task}
 
-\begin{table*}[t]
+\begin{table*}
 	\resizebox{\linewidth}{!}{
 		\centering
 		\begin{tabular}{|l|lll|lll|lll|lll|}
@@ -707,7 +736,7 @@ As shown in Table \ref{Table_KBP2015_ED}, our FOFE-based local detection method 
 			ALL & 0.893 & 0.759 & 0.821 & 0.541 & 0.315 & 0.398 & 0.819 & 0.639 & {\bf 0.718} & 0.802 & 0.704 & 0.756 \\
 			\hline 
 	\end{tabular}}
-	\caption{Official entity discovery performance of our methods on KBP2016 trilingual EDL track.}
+	\caption{Official entity discovery performance of our methods on KBP2016 trilingual EDL track.\footnote{Neither KBP2015 nor in-house data labels nominals.}}
 	\label{tbl:kbp2016}
 \end{table*}
 
