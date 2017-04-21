@@ -89,7 +89,7 @@
 Natural language processing (NLP) plays an important role in artificial intelligence, which has been extensively studied for many decades. Conventional NLP techniques include the rule-based symbolic approaches widely used about two decades ago, and the more recent statistical approaches relying on feature engineering and statistical models. In the recent years, deep learning approach has achieved huge successes in many applications, ranging from speech recognition to image classification. It is drawing increasing attention in the NLP community. 
 
 In this paper, we are interested in a fundamental problem in NLP, namely named entity recognition (NER) and mention detection (MD). NER and MD is a very challenging task in NLP, laying the foundation of almost every NLP application.
-NER and MD is a task of identifying entities (named and/or nominal) from raw text, and classifying the detected entities into one of the pre-defined categories such as person (PER), organization (ORG), location (LOC), etc. Some tasks focus on named entities only, 
+NER and MD are tasks of identifying entities (named and/or nominal) from raw text, and classifying the detected entities into one of the pre-defined categories such as person (PER), organization (ORG), location (LOC), etc. Some tasks focus on named entities only, 
 %for example, 
 %\begin{quote}
 %	\label{emp:4types}
@@ -126,7 +126,7 @@ our method examines all word segments (up to a certain length) in a sentence. A 
 This approach conforms to the way human resolves an NER problem. Given any word fragment and its contexts in a sentence or paragraph, people accurately determine whether this word segment is a named entity or not. People rarely conduct a global decoding over the entire sentence to make such a decision. 
 The key to making an accurate local decision for each individual fragment is to have full access to the fragment itself as well as its complete contextual information. 
 The main pitfall to implement this idea is that we can not easily encode the segment and its contexts in models since they are of varying lengths in natural languages. Many feature engineering techniques have been proposed but all of these methods will inevitably lead to information loss. 
-In this work, we propose to use a recent fixed-size encoding method, namely fixed-size ordinally forgetting encoding (FOFE) \cite{zhang2015fixed}, to solve this problem.  The FOFE method is a simple recursive encoding method. FOFE theoretically guarantees (almost) unique and lossless encodding of any variable-length sequence. The left and the right contexts for each word segment are encoded by FOFE method, and then a simple neural network can be trained to make a precise recognition for each individual word segment based on the fixed-size presentation of the contextual information. This FOFE-based local detection approach is more appealing to NER and MD. Firstly, feature engineering is almost eliminated. 
+In this work, we propose to use a recent fixed-size encoding method, namely fixed-size ordinally forgetting encoding (FOFE) \cite{zhang2015fixed}, to solve this problem.  The FOFE method is a simple recursive encoding method. FOFE theoretically guarantees (almost) unique and lossless encoding of any variable-length sequence. The left and the right contexts for each word segment are encoded by FOFE method, and then a simple neural network can be trained to make a precise recognition for each individual word segment based on the fixed-size presentation of the contextual information. This FOFE-based local detection approach is more appealing to NER and MD. Firstly, feature engineering is almost eliminated. 
 %FOFE only relies on a single forgetting factor to encode any sequence. 
 Secondly, under this local detection framework, nested mention is handled with little modification. Next, it makes better use of partially-labeled data available from many application scenarios. Sequence labeling model requires all entities in a sentence to be labeled. If only some (not all) entities are labeled, it is not effective to learn a sequence labeling model. However, every single labeled entity, along with its contexts, may be used to learn the proposed model. At last, due to the simplicity of FOFE, simple neural networks, such as multilayer perceptrons, are sufficient for recognition. These models are much faster to train and easier to tune. In the test stage, all possible word segments from a sentence may be packed into a mini-batch, jointly recognized in parallel on GPUs. This leads to a very fast decoding process as well.
 
@@ -752,17 +752,17 @@ v) {\it Dropout rate}: initially set to 0.4, slowly decreased during training un
 
 In our first set of experiments, we investigate the effect of using different training data sets on the final entity discovery performance. 
 Different training runs are conducted on different combinations of the aforementioned data sources.
-In Table \ref{tbl:kbp2016-EDL1}, we have summarized the official English entity discovery results from several systems we submitted to KBP2016 EDL evaluation round I and II. The first system, using only the KBP2015 data to train the model, has achieved 0.693 in $F_1$ score in the official KBP2016 English evaluation data. After adding the weakly labeled data, WIKI, we can see the entity discovery performance is improved to 0.707 in  $F_1$ score. Moreover, we can see that it yields even better performance by using the KBP2015 data and the in-house data sets to train our models, giving 0.731 in $F_1$ score. After we fix a preprocessing bug, the same setting yields 0.750 in the evaluation round II. 
+In Table \ref{tbl:kbp2016-EDL1}, we have summarized the official English entity discovery results from several systems we submitted to KBP2016 EDL evaluation round I and II. The first system, using only the KBP2015 data to train the model, has achieved 0.697 in $F_1$ score in the official KBP2016 English evaluation data. After adding the weakly labeled data, WIKI, we can see the entity discovery performance is improved to 0.718 in  $F_1$ score. Moreover, we can see that it yields even better performance by using the KBP2015 data and the in-house data sets to train our models, giving 0.750 in $F_1$ score. 
+%After we fix a preprocessing bug, the same setting yields 0.750 in the evaluation round II. 
 
 \begin{table}[h]
 	\centering
-	\begin{tabular}{|c|l|ll|l|}
+	\begin{tabular}{|l|ll|l|}
 		\hline
-		 & training data  &  P   &  R  &  $F_1$ \\ \hline \hline
-		 & KBP2015 &  0.818 & 0.600 & 0.693 \\
-		I  & KBP2015 + WIKI  &   0.859 & 0.601 & \bf 0.707 \\
-		  & KBP2015 + in-house & 0.830 & 0.652 & \bf 0.731 \\ \hline
-		II & KBP2015 + in-house & 0.836 & 0.680 & \bf 0.750 \\ 
+		training data  &  P   &  R  &  $F_1$ \\ \hline \hline
+		KBP2015 & 0.836 & 0.598 & 0.697 \\
+		KBP2015 + WIKI &  0.837 & 0.628 & \bf 0.718 \\
+		KBP2015 + in-house & 0.836 & 0.680 & \bf 0.750 \\ 
 		\hline
 	\end{tabular}
 	\caption{Our entity discovery official performance (English only) in KBP2016 
