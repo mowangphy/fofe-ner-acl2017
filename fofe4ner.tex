@@ -90,7 +90,7 @@
 
 Natural language processing (NLP) plays an important role in artificial intelligence, which has been extensively studied for many decades. Conventional NLP techniques include the rule-based symbolic approaches widely used about two decades ago, and the more recent statistical approaches relying on feature engineering and statistical models. In the recent years, deep learning approach has achieved huge successes in many applications, ranging from speech recognition to image classification. It is drawing increasing attention in the NLP community. 
 
-In this paper, we are interested in a fundamental problem in NLP, namely named entity recognition (NER) and mention detection (MD). NER and MD is a very challenging task in NLP, laying the foundation of almost every NLP application.
+In this paper, we are interested in a fundamental problem in NLP, namely named entity recognition (NER) and mention detection (MD). NER and MD are very challenging tasks in NLP, laying the foundation of almost every NLP application.
 NER and MD are tasks of identifying entities (named and/or nominal) from raw text, and classifying the detected entities into one of the pre-defined categories such as person (PER), organization (ORG), location (LOC), etc. Some tasks focus on named entities only, 
 %for example, 
 %\begin{quote}
@@ -610,9 +610,9 @@ vi) {\it Number of epochs}: 128;
 vii){\it Embedding matrices} case-sensitive and case-insensitive word embeddings of 256 dimensions, trained from Reuters RCV1;
 viii) We stick to the official data train-dev-test partition. ix) {\it Forgetting factor $\alpha=0.5$}. \footnote{The choice of the forgetting factor $\alpha$ is empirical. We've evaluated $\alpha = 0.5,0.6,0.7,0.8$ on a development set in some early experiments. It turns out that $\alpha = 0.5$ is the best. As a result, $\alpha = 0.5$ is used for all NER/MD tasks throughout this paper.}
 
-We have investigated the performance of our method on the CoNLL-2003 dataset by using different combinations of the FOFE features (both word-level and character-level). The detailed comparison results are shown in Table \ref{tbl:feat-cmp:CoNLL03}. In Table \ref{tbl:nn-cmp:CoNLL03}, we have compared our best performance with some top-performing neural network systems on this task. As we can see from Table \ref{tbl:nn-cmp:CoNLL03}, our system (highest-first decoding) yields very strong performance (90.71 in $F_1$ score) in this task, outperforming most of neural network models reported on this dataset. More importantly, we have not used any hand-crafted features in our systems, and all features (either word or character level) are automatically derived from the data. 
+We have investigated the performance of our method on the CoNLL-2003 dataset by using different combinations of the FOFE features (both word-level and character-level). The detailed comparison results are shown in Table \ref{tbl:feat-cmp:CoNLL03}. In Table \ref{tbl:nn-cmp:CoNLL03}, we have compared our best performance with some top-performing neural network systems on this task. As we can see from Table \ref{tbl:nn-cmp:CoNLL03}, our system (highest-first decoding) yields very strong performance (90.85 in $F_1$ score) in this task, outperforming most of neural network models reported on this dataset. More importantly, we have not used any hand-crafted features in our systems, and all features (either word or char level) are automatically derived from the data. Highest-first and longest-first performs similarly.
 %based on the simple FOFE formula. 
-In \cite{chiu2016named}\footnote{In their work, they have used a combination of training-set and dev-set to train the model, differing from all other systems (including ours) in Table \ref{tbl:nn-cmp:CoNLL03}.}, a slightly better performance (91.62 in $F_1$ score) is reported but a customized gazetteer is used in their method.
+In \cite{chiu2016named}\footnote{In their work, they have used a combination of training-set and dev-set to train the model, differing from all other systems (including ours) in Table \ref{tbl:nn-cmp:CoNLL03}.}, a slightly better performance (91.62 in $F_1$ score) is reported but a customized gazetteer is used in theirs.
 
 
 %\begin{table}
@@ -643,10 +643,10 @@ In \cite{chiu2016named}\footnote{In their work, they have used a combination of 
 		 {CNN-BLSTM-CRF} \cite{collobert2011natural} & \cmark & \xmark & \cmark & \cmark & \xmark & 89.59  \\
 		 {BLSTM-CRF} \cite{huang2015bidirectional}  &\cmark & \cmark & \cmark & \cmark & \cmark & 90.10 \\
 		 {BLSTM-CRF} \cite{rondeau2016lstm}  & \cmark & \xmark & \cmark & \cmark & \cmark & 89.28 \\
-		\ {BLSTM-CRF, char-CNN} \cite{chiu2016named}  & \cmark & \cmark & \cmark & \xmark & \xmark & {\bf 91.62} \\
+		{BLSTM-CRF, char-CNN} \cite{chiu2016named}  & \cmark & \cmark & \cmark & \xmark & \xmark & {\bf 91.62} \\
 		{Stack-LSTM-CRF, char-LSTM} \cite{lample2016neural}  & \cmark & \cmark & \xmark & \xmark & \xmark & {\bf 90.94} \\
 		\hline \hline
-		{\bf this work}  & \cmark & \cmark & \xmark & \xmark & \xmark & {\bf 90.71} \\
+		{\bf this work}  & \cmark & \cmark & \xmark & \xmark & \xmark & {\bf 90.85} \\
 		\hline
 	\end{tabular}
 	\caption{Performance ($F_1$ score) comparison among various neural models reported on the CoNLL dataset, and the different features used in these methods.}
@@ -679,7 +679,7 @@ and Facility (FAC). The corpus consists of news articles and discussion forum po
 \end{table}
 
 
-Three models are trained and evaluated independently. Unless explicitly listed, hyperparameters follow those used for CoNLL2003 as described in section \ref{exp-subsec:conll2003}. Three sets of word embeddings of 128 dimensions are derived from English Gigaword \cite{parker2011english}, Chinese Gigaword \cite{graff2005chinese} and Spanish Gigaword \cite{mendonca2009spanish} respectively. Some language-specific modifications are made:
+Three models are trained and evaluated independently. Unless explicitly listed, hyperparameters follow those used for CoNLL2003 as described in section \ref{exp-subsec:conll2003} and 2nd-pass model is not used. Three sets of word embeddings of 128 dimensions are derived from English Gigaword \cite{parker2011english}, Chinese Gigaword \cite{graff2005chinese} and Spanish Gigaword \cite{mendonca2009spanish} respectively. Some language-specific modifications are made:
 
 \begin{itemize}
 	\item {\bf Chinese}: Because Chinese segmentation is not reliable, we label Chinese at character level. The analogous roles of case-sensitive word-embedding and case-sensitive word-embedding are played by character embedding and word-embedding in which the character appears. Neither Char FOFE features nor Char CNN features are used for Chinese. 
@@ -728,7 +728,7 @@ As shown in Table \ref{Table_KBP2015_ED}, our FOFE-based local detection method 
 
 \subsection{KBP2016 EDL task}
 
-In KBP2016, the trilingual EDL task is extended to detect nominal mentions of all 5 entity types for all three languages. In our experiments, for simplicity, we just treat nominal mention types as some extra entity types and detect them along with named entities together with a single model.  
+In KBP2016, the trilingual EDL task is extended to detect nominal mentions of all 5 entity types for all three languages. In our experiments, for simplicity, we treat nominal mention types as some extra entity types and detect them along with named entities together with a single model.  
 
 \begin{table}[h]
 	\centering
@@ -761,7 +761,7 @@ In this way, we have created a fairly large amount of  weakly-supervised triling
 	
 \end{itemize}
 
-We normally split the available data into training, validation and evaluation sets in a ratio of 90:5:5. The models are trained for 256 epochs if the in-house data is not used, and 64 epochs otherwise.
+We split the available data into training, validation and evaluation sets in a ratio of 90:5:5. The models are trained for 256 epochs if the in-house data is not used, and 64 epochs otherwise.
 
 \subsubsection{Effect of various training data}
 
@@ -772,7 +772,7 @@ In Table \ref{tbl:kbp2016-EDL1}, we have summarized the official English entity 
 \subsubsection{The official trilingual EDL performance in KBP2016}
 
 The official best results of our system are summarized in Table \ref{tbl:kbp2016}. 
-Here we have broken down the system performance according to different languages and categories of entities (named or nominal). Our system, achieving 0.718 in $F_1$ score in the KBP2016 trilingual EDL track, ranks second among all participants. Note that our result is produced by a single system while the top system is a combination of two different models, each of which is based on 5-fold cross-validation \cite{iflytek-kbp2016}.
+We have broken down the system performance according to different languages and categories of entities (named or nominal). Our system, achieving 0.718 in $F_1$ score in the KBP2016 trilingual EDL track, ranks second among all participants. Note that our result is produced by a single system while the top system is a combination of two different models, each of which is based on 5-fold cross-validation \cite{iflytek-kbp2016}.
 
 \section{Conclusion}
 
