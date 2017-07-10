@@ -1,0 +1,614 @@
+%% COPY FROM FOFE-NER
+%%%%%%%%%%%%%%%%%%%%%
+
+@inproceedings{glorot2011deep,
+  title={Deep Sparse Rectifier Neural Networks},
+  author={Glorot, X. and Bordes, A. and Bengio, Y.},
+  booktitle={International Conference on Artificial Intelligence and Statistics. JMLR W\&CP:},
+  volume={15},
+  pages={315--323},
+  year={2011}
+}
+
+
+@inproceedings{kbp2016iflytek,
+  title = {The {USTC\_NELSLIP} Systems for Trilingual Entity Detection and Linking Tasks at {TAC KBP} 2016},
+  author = {Dan Liu and Wei Lin and Shiliang Zhang and  Si Wei and  Hui Jiang},
+  booktitle = {Proceedings of Text Analysis Conference (TAC2016)},
+  year = {2016}
+}
+
+
+
+@inproceedings{kbpoverview2015,
+  title = {Overview of TAC-KBP2015 Tri-lingual Entity Discovery and Linking},
+  author = {Heng Ji and Joel Nothman and Ben Hachey},
+  booktitle = {Proceedings of Text Analysis Conference (TAC2015)},
+  year = {2015}
+}
+
+
+@inproceedings{kbpoverview2016,
+  title = {Overview of TAC-KBP2016 Tri-lingual {EDL} and Its Impact on End-to-End Cold-Start},
+  author = {Heng Ji and Joel Nothman and Hoa Trang Dang},
+  booktitle = {Proceedings of Text Analysis Conference (TAC2015)},
+  year = {2015}
+}
+
+%% 89.28, BLSTM, CRF
+%% CBoW, cap, POS
+@inproceedings{rondeau2016lstm,
+  doi = {10.21437/interspeech.2016-288},
+  year = 2016,
+  month = {sep},
+  publisher = {International Speech Communication Association},
+  author = {Marc-Antoine Rondeau and Yi Su},
+  title = {{LSTM}-Based {NeuroCRFs} for Named Entity Recognition},
+  booktitle = {Interspeech 2016},
+  pages = {665--669}
+}
+
+%% 91.62, BLSTM, CNN, CRF
+%% char-cnn, senna
+%% they tried caps but result degraded
+@article{chiu2016named,
+  title={Named entity recognition with bidirectional {LSTM-CNN}s},
+  author={Chiu, Jason P. C. and Nichols, Eric},
+  journal={Transactions of the Association for Computational Linguistics},
+  volume={4},
+  pages={357--370},
+  year={2016}
+}
+
+%% 90.10, BLSTM, CRF
+%% super hand-crafted spelling features, senna, bigram, trigram
+@article{huang2015bidirectional,
+  title={Bidirectional {LSTM-CRF} models for sequence tagging},
+  author={Huang, Zhiheng and Xu, Wei and Yu, Kai},
+  journal={arXiv preprint arXiv:1508.01991},
+  year={2015}
+}
+
+
+@article{iflytek-kbp2016,
+  title={Neural Networks Models for Entity Discovery and Linking},
+  author={Dan Liu and Wei Lin and Shiliang Zhang and Si Wei and  Hui Jiang},
+  journal={arXiv preprint arXiv:1611.03558},
+  year={2016}
+}
+
+
+%% state of the art
+%% 90.94, Stack-LSTM, char-lstm
+%% word2vec, rand-char
+@article{lample2016neural,
+  title={Neural architectures for named entity recognition},
+  author={Lample, Guillaume and Ballesteros, Miguel and Subramanian, Sandeep and Kawakami, Kazuya and Dyer, Chris},
+  journal={arXiv preprint arXiv:1603.01360},
+  year={2016}
+}
+
+@article{Zhang2015arXiv,
+  title={A Fixed-Size Encoding Method for Variable-Length Sequences with its Application to Neural Network Language Models},
+  author={Zhang, Shiliang and Jiang, Hui and Xu, Mingbin and Hou, Junfeng and Dai, Lirong},
+  journal={arXiv preprint arXiv:1505.01504.},
+  year={2015}
+}
+
+
+%% 89.59, CNN, CRF
+%% senna, gaz
+@article{collobert2011natural,
+  title={Natural language processing (almost) from scratch},
+  author={Collobert, Ronan and Weston, Jason and Bottou, L{\'e}on and Karlen, Michael and Kavukcuoglu, Koray and Kuksa, Pavel},
+  journal={Journal of Machine Learning Research},
+  volume={12},
+  number={Aug},
+  pages={2493--2537},
+  year={2011}
+}
+
+%% general RNN paper
+@incollection{graves2012neural,
+  title={Neural Networks},
+  author={Graves, Alex},
+  booktitle={Supervised Sequence Labelling with Recurrent Neural Networks},
+  pages={15--35},
+  year={2012},
+  publisher={Springer},
+  doi={10.1007/978-3-642-24797-2}
+}
+
+%% FOFE
+@inproceedings{zhang2015fixed,
+  doi = {10.3115/v1/p15-2081},
+  year = 2015,
+  publisher = {Association for Computational Linguistics ({ACL})},
+  author = {Shiliang Zhang and Hui Jiang and Mingbin Xu and Junfeng Hou and Lirong Dai},
+  title = {The Fixed-Size Ordinally-Forgetting Encoding Method for Neural Network Language Models},
+  booktitle = {Proceedings of the 53rd Annual Meeting of the Association for Computational Linguistics and the 7th International Joint Conference on Natural Language Processing (Volume 2: Short Papers)}
+}
+
+%% FSMN
+@inproceedings{zhang2016compact,
+  doi = {10.21437/interspeech.2016-121},
+  year = 2016,
+  month = {sep},
+  publisher = {International Speech Communication Association},
+  author = {Shiliang Zhang and Hui Jiang and Shifu Xiong and Si Wei and Li-Rong Dai},
+  title = {Compact Feedforward Sequential Memory Networks for Large Vocabulary Continuous Speech Recognition},
+  booktitle = {Interspeech 2016}
+}
+
+%% CharWNN
+@inproceedings{dos2015boosting,
+  title={Boosting named entity recognition with neural character embeddings},
+  author={dos Santos, C{\i}cero and Guimaraes, Victor and Niter{\'o}i, RJ and de Janeiro, Rio},
+  booktitle={Proceedings of NEWS 2015 The Fifth Named Entities Workshop},
+  pages={25},
+  year={2015},
+  doi = {10.18653/v1/w15-3904},
+  publisher = {Association for Computational Linguistics ({ACL})}
+}
+
+%% wikiNER
+@article{nothman2013learning,
+  doi = {10.1016/j.artint.2012.03.006},
+  url = {https://doi.org/10.1016%2Fj.artint.2012.03.006},
+  year = 2013,
+  month = {jan},
+  publisher = {Elsevier {BV}},
+  volume = {194},
+  pages = {151--175},
+  author = {Joel Nothman and Nicky Ringland and Will Radford and Tara Murphy and James R. Curran},
+  title = {Learning multilingual named entity recognition from Wikipedia},
+  journal = {Artificial Intelligence}
+}
+
+%% 88.76, 4-classifer emsemble
+%% CoNLL2003 best result 
+@inproceedings{florian2003named,
+  title={Named entity recognition through classifier combination},
+  author={Florian, Radu and Ittycheriah, Abe and Jing, Hongyan and Zhang, Tong},
+  booktitle={Proceedings of the seventh conference on Natural language learning at HLT-NAACL 2003-Volume 4},
+  pages={168--171},
+  year={2003},
+  organization={Association for Computational Linguistics},
+  doi = {10.3115/1119176.1119201}
+}
+
+
+%% word2vec
+@inproceedings{mikolov2013distributed,
+  title={Distributed representations of words and phrases and their compositionality},
+  author={Mikolov, Tomas and Sutskever, Ilya and Chen, Kai and Corrado, Greg S and Dean, Jeff},
+  booktitle={Advances in neural information processing systems},
+  pages={3111--3119},
+  year={2013}
+}
+
+@InProceedings{liu-EtAl:2015:ACL-IJCNLP,
+  author    = {Liu, Quan  and  Jiang, Hui  and  Wei, Si  and  Ling, Zhen-Hua  and  Hu, Yu},
+  title     = {Learning Semantic Word Embeddings based on Ordinal Knowledge Constraints},
+  booktitle = {Proceedings of the 53rd Annual Meeting of the Association for Computational Linguistics and the 7th International Joint Conference on Natural Language Processing (Volume 1: Long Papers)},
+  month     = {July},
+  year      = {2015},
+  address   = {Beijing, China},
+  publisher = {Association for Computational Linguistics},
+  pages     = {1501--1511}
+}
+
+%% conll2003 overview
+@inproceedings{tjong2003introduction,
+  title={Introduction to the CoNLL-2003 shared task: Language independent named entity recognition.},
+  author={Erik F Tjong Kim Sang and Fien De Meulder},
+  booktitle={Proceedings of the Seventh Conference on Natural Language Learning at HLT-NAACL 2003,},
+  pages={142–147},
+  year={2003}
+}
+
+%% universal approximator
+@article{hornik1991approximation,
+  doi = {10.1016/0893-6080(91)90009-t},
+  url = {https://doi.org/10.1016%2F0893-6080%2891%2990009-t},
+  year = 1991,
+  month = {jan},
+  publisher = {Elsevier {BV}},
+  volume = {4},
+  number = {2},
+  pages = {251--257},
+  author = {Kurt Hornik},
+  title = {Approximation capabilities of multilayer feedforward networks},
+  journal = {Neural Networks}
+}
+
+%% cnn used in our work
+%% journal={arXiv preprint arXiv:1508.06615}
+@inproceedings{kim2015character,
+  title={Character-aware neural language models},
+  author={Kim, Yoon and Jernite, Yacine and Sontag, David and Rush, Alexander M},
+  booktitle={AAAI},
+  year={2016},
+  organization={Citeseer}
+}
+
+
+%% viterbi algorithm
+@article{Viterbi1967err,
+  doi = {10.1109/tit.1967.1054010},
+  url = {https://doi.org/10.1109%2Ftit.1967.1054010},
+  year = 1967,
+  month = {apr},
+  publisher = {Institute of Electrical and Electronics Engineers ({IEEE})},
+  volume = {13},
+  number = {2},
+  pages = {260--269},
+  author = {A. Viterbi},
+  title = {Error bounds for convolutional codes and an asymptotically optimum decoding algorithm},
+  journal = {{IEEE} Transactions on Information Theory}
+}
+
+
+%% maximum entropy + viterbi
+@inproceedings{borthwick1998exploiting,
+  title={Exploiting diverse knowledge sources via maximum entropy in named entity recognition},
+  author={Borthwick, Andrew and Sterling, John and Agichtein, Eugene and Grishman, Ralph},
+  booktitle={Proc. of the Sixth Workshop on Very Large Corpora},
+  volume={182},
+  year={1998}
+}
+
+
+%% kernel re-ranking
+@inproceedings{nguyen2010kernel,
+  title={Kernel-based reranking for named-entity extraction},
+  author={Nguyen, Truc-Vien T and Moschitti, Alessandro and Riccardi, Giuseppe},
+  booktitle={Proceedings of the 23rd International Conference on Computational Linguistics: Posters},
+  pages={901--909},
+  year={2010},
+  organization={Association for Computational Linguistics}
+}
+
+
+%% english gigaword
+@article{parker2011english,
+  title={English gigaword},
+  author={Parker, Robert and Graff, David and Kong, Junbo and Chen, Ke and Maeda, Kazuaki},
+  journal={Linguistic Data Consortium},
+  year={2011}
+}
+
+
+%% chinese gigaword
+@article{graff2005chinese,
+  title={Chinese gigaword},
+  author={Graff, David and Chen, Ke},
+  journal={LDC Catalog No.: LDC2003T09, ISBN},
+  volume={1},
+  pages={58563--58230},
+  year={2005}
+}
+
+
+%% spanish gigaword
+@book{mendonca2009spanish,
+  title={Spanish gigaword second edition},
+  author={Mendonca, Angelo and Graff, David Andrew and DiPersio, Denise},
+  year={2009},
+  publisher={Linguistic Data Consortium}
+}
+
+
+%% Reuters RCV1
+@inproceedings{rose2002reuters,
+  title={The Reuters Corpus Volume 1-from Yesterday's News to Tomorrow's Language Resources.},
+  author={Rose, Tony and Stevenson, Mark and Whitehead, Miles},
+  booktitle={LREC},
+  volume={2},
+  pages={827--832},
+  year={2002}
+}
+
+
+@inproceedings{xu2017local,
+  year = 2017,
+  publisher = {Association for Computational Linguistics ({ACL})},
+  author = {Mingbin Xu and Hui Jiang and Sedtawut Watcharawittayakul},
+  title = {A Local Detection Approach for Named Entity Recognition and Mention Detection},
+  booktitle = {Proceedings of the 55th Annual Meeting of the Association for Computational Linguistics}
+}
+
+
+@inproceedings{manning2014stanford,
+  title={The stanford corenlp natural language processing toolkit.},
+  author={Manning, Christopher D and Surdeanu, Mihai and Bauer, John and Finkel, Jenny Rose and Bethard, Steven and McClosky, David},
+  booktitle={ACL (System Demonstrations)},
+  pages={55--60},
+  year={2014}
+}
+
+
+@inproceedings{cho2014encdec,
+     author = {Cho, Kyunghyun and van Merri{\"{e}}nboer, Bart and G{\"{u}}l{\c c}ehre, {\c C}ağlar and Bahdanau, Dzmitry and Bougares, Fethi and Schwenk, Holger and Bengio, Yoshua},
+      title = {Learning Phrase Representations using RNN Encoder--Decoder for Statistical Machine Translation},
+  booktitle = {Proceedings of the 2014 Conference on Empirical Methods in Natural Language Processing (EMNLP)},
+       year = {2014},
+      pages = {1724--1734},
+  publisher = {Association for Computational Linguistics},
+    address = {Doha, Qatar}
+}
+
+
+@inproceedings{luong2015effective,
+  author    = {Luong, Minh-Thang  and  Pham, Hieu  and  Manning, Christopher D.},
+  title     = {Effective Approaches to Attention-based Neural Machine Translation},
+  booktitle = {Proceedings of the 2015 Conference on Empirical Methods in Natural Language Processing},
+  month     = {September},
+  year      = {2015},
+  address   = {Lisbon, Portugal},
+  publisher = {Association for Computational Linguistics},
+  pages     = {1412--1421}
+}
+
+
+%% REFORMAT FROM FOFE-LM
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+@article{Katz.1987,
+  doi = {10.1109/tassp.1987.1165125},
+  url = {https://doi.org/10.1109%2Ftassp.1987.1165125},
+  year = 1987,
+  month = {mar},
+  publisher = {Institute of Electrical and Electronics Engineers ({IEEE})},
+  volume = {35},
+  number = {3},
+  pages = {400--401},
+  author = {S. Katz},
+  title = {Estimation of probabilities from sparse data for the language model component of a speech recognizer},
+  journal = {{IEEE} Transactions on Acoustics, Speech, and Signal Processing}
+}
+
+@inproceedings{Kneser.1995,
+  doi = {10.1109/icassp.1995.479394},
+  url = {https://doi.org/10.1109%2Ficassp.1995.479394},
+  publisher = {{IEEE}},
+  author = {R. Kneser and H. Ney},
+  title = {Improved backing-off for M-gram language modeling},
+  booktitle = {1995 International Conference on Acoustics, Speech, and Signal Processing}
+}
+
+
+@article{Werbos1990,
+  doi = {10.1109/5.58337},
+  url = {https://doi.org/10.1109%2F5.58337},
+  year = 1990,
+  publisher = {Institute of Electrical and Electronics Engineers ({IEEE})},
+  volume = {78},
+  number = {10},
+  pages = {1550--1560},
+  author = {P.J. Werbos},
+  title = {Backpropagation through time: what it does and how to do it},
+  journal = {Proceedings of the {IEEE}}
+}
+
+
+@article{Bengio1994,
+  doi = {10.1109/72.279181},
+  url = {https://doi.org/10.1109%2F72.279181},
+  year = 1994,
+  month = {mar},
+  publisher = {Institute of Electrical and Electronics Engineers ({IEEE})},
+  volume = {5},
+  number = {2},
+  pages = {157--166},
+  author = {Y. Bengio and P. Simard and P. Frasconi},
+  title = {Learning long-term dependencies with gradient descent is difficult},
+  journal = {{IEEE} Transactions on Neural Networks}
+}
+
+
+%% TODO: DOI and URL missing
+@article{Bengio2003,
+  title={A neural probabilistic language model},
+  author={Bengio, Yoshua and Ducharme, R{\'e}jean and Vincent, Pascal and Jauvin, Christian},
+  journal={Journal of machine learning research},
+  volume={3},
+  number={Feb},
+  pages={1137--1155},
+  year={2003}
+}
+
+
+%% Unable to locate this;
+@article{Bengio2001,
+  title={A neural probabilistic language model},
+  author={Bengio, Yoshua and Ducharme, R{\'e}jean},
+  journal={Proceeding of NIPS},
+  volume={13},
+  year={2001}
+}
+
+
+@article{Elman1990,
+  doi = {10.1207/s15516709cog1402_1},
+  url = {https://doi.org/10.1207%2Fs15516709cog1402_1},
+  year = 1990,
+  month = {mar},
+  publisher = {Wiley-Blackwell},
+  volume = {14},
+  number = {2},
+  pages = {179--211},
+  author = {Jeffrey L. Elman},
+  title = {Finding Structure in Time},
+  journal = {Cognitive Science}
+}
+
+
+% TODO: DOI and URL missing
+@inproceedings{Mikolov2010recurrent,
+  title={Recurrent neural network based language model.},
+  author={Mikolov, Tomas and Karafi{\'a}t, Martin and Burget, Lukas and Cernock{\`y}, Jan and Khudanpur, Sanjeev},
+  booktitle={Interspeech},
+  volume={2},
+  pages={3},
+  year={2010}
+}
+
+
+@inproceedings{Mikolov2011Extension,
+  doi = {10.1109/icassp.2011.5947611},
+  url = {https://doi.org/10.1109%2Ficassp.2011.5947611},
+  year = 2011,
+  month = {may},
+  publisher = {{IEEE}},
+  author = {Tomas Mikolov and Stefan Kombrink and Lukas Burget and Jan Cernocky and Sanjeev Khudanpur},
+  title = {Extensions of recurrent neural network language model},
+  booktitle = {2011 {IEEE} International Conference on Acoustics, Speech and Signal Processing ({ICASSP})}
+}
+
+
+@inproceedings{Mikolov2012,
+  doi = {10.1109/slt.2012.6424228},
+  url = {https://doi.org/10.1109%2Fslt.2012.6424228},
+  year = 2012,
+  month = {dec},
+  publisher = {{IEEE}},
+  author = {Tomas Mikolov and Geoffrey Zweig},
+  title = {Context dependent recurrent neural network language model},
+  booktitle = {2012 {IEEE} Spoken Language Technology Workshop ({SLT})}
+}
+
+
+@inproceedings{Chen2014,
+  title={Efficient GPU-based training of recurrent neural network language models using spliced sentence bunch.},
+  author={Chen, Xie and Wang, Yongqiang and Liu, Xunying and Gales, Mark JF and Woodland, Philip C},
+  booktitle={Interspeech},
+  volume={14},
+  pages={641--645},
+  year={2014}
+}
+
+
+@article{Sutskever2010,
+  doi = {10.1016/j.neunet.2009.10.009},
+  url = {https://doi.org/10.1016%2Fj.neunet.2009.10.009},
+  year = 2010,
+  month = {mar},
+  publisher = {Elsevier {BV}},
+  volume = {23},
+  number = {2},
+  pages = {239--243},
+  author = {Ilya Sutskever and Geoffrey Hinton},
+  title = {Temporal-Kernel Recurrent Neural Networks},
+  journal = {Neural Networks}
+}
+
+
+@inproceedings{Shi2013,
+  doi = {10.1109/icassp.2013.6639273},
+  url = {https://doi.org/10.1109%2Ficassp.2013.6639273},
+  year = 2013,
+  month = {may},
+  publisher = {{IEEE}},
+  author = {YongZhe Shi and Wei-Qiang Zhang and Meng Cai and Jia Liu},
+  title = {Temporal kernel neural network language model},
+  booktitle = {2013 {IEEE} International Conference on Acoustics, Speech and Signal Processing}
+}
+
+
+@article{Hochreiter1997,
+  title={Long short-term memory},
+  author={Hochreiter, Sepp and Schmidhuber, J{\"u}rgen},
+  journal={Neural computation},
+  volume={9},
+  number={8},
+  pages={1735--1780},
+  year={1997},
+  publisher={MIT Press}
+}
+
+
+@inproceedings{Graves2009,
+  title={Offline handwriting recognition with multidimensional recurrent neural networks},
+  author={Graves, Alex and Schmidhuber, J{\"u}rgen},
+  booktitle={Advances in neural information processing systems},
+  pages={545--552},
+  year={2009}
+}
+
+
+@article{Graves2013,
+  title={Generating sequences with recurrent neural networks},
+  author={Graves, Alex},
+  journal={arXiv preprint arXiv:1308.0850},
+  year={2013}
+}
+
+
+@inproceedings{Glorot2010,
+  title={Understanding the difficulty of training deep feedforward neural networks.},
+  author={Glorot, Xavier and Bengio, Yoshua},
+  booktitle={Aistats},
+  volume={9},
+  pages={249--256},
+  year={2010}
+}
+
+
+@article{mahoney2009large,
+  title={Large text compression benchmark},
+  author={Mahoney, Matt},
+  journal={URL: http://www. mattmahoney. net/text/text. html},
+  year={2009}
+}
+
+
+@article{Zhang2015c,
+  title={Hybrid orthogonal projection and estimation (HOPE): A new framework to probe and learn neural networks},
+  author={Zhang, Shiliang and Jiang, Hui},
+  journal={arXiv preprint arXiv:1502.00702},
+  year={2015}
+}
+
+
+
+@inproceedings{Zhang2015b,
+  title={The new HOPE way to learn neural networks},
+  author={Zhang, Shiliang and Dai, L and Jiang, Hui},
+  booktitle={Deep Learning Workshop at ICML},
+  year={2015}
+}
+
+
+%%%%%%%%%%%%%%%%%%
+%% other citations
+
+% curse of dimensionality
+@book{bellman2015adaptive,
+  title={Adaptive control processes: a guided tour},
+  author={Bellman, Richard E},
+  year={2015},
+  publisher={Princeton university press}
+}
+
+% markov assumption
+@article{markov1957theory,
+  title={Theory of algorithms},
+  author={Markov, Andre{\u\i} Andreevich},
+  year={1957}
+}
+
+% distributional hypothesis
+@article{harris1954distributional,
+  title={Distributional structure},
+  author={Harris, Zellig S},
+  journal={Word},
+  volume={10},
+  number={2-3},
+  pages={146--162},
+  year={1954},
+  publisher={Taylor \& Francis}
+}
+
+
+

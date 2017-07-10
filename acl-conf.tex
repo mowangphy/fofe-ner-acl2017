@@ -1,0 +1,387 @@
+\documentclass{beamer}
+\usetheme{Warsaw}
+% \usecolortheme{green}
+
+% \definecolor{PRIMARY}{RGB}{0, 100, 0}
+% \definecolor{SECONDARY}{RGB}{144,238,144}
+% \setbeamercolor{palette primary}{bg=PRIMARY,fg=white}
+% \setbeamercolor{palette secondary}{bg=PRIMARY,fg=white}
+% \setbeamercolor{palette tertiary}{bg=PRIMARY,fg=white}
+% \setbeamercolor{palette quaternary}{bg=PRIMARY,fg=white}
+% \setbeamercolor{structure}{fg=PRIMARY} % itemize, enumerate, etc
+% \setbeamercolor{section in toc}{fg=PRIMARY} % TOC sections
+
+% % Override palette coloring with secondary
+% \setbeamercolor{subsection in head/foot}{bg=SECONDARY,fg=white}
+
+
+% not included by beamer
+\usepackage{multirow}
+\usepackage{bm}
+\usepackage{pifont}
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+
+\usepackage[style=authoryear]{biblatex}
+\bibliography{acl-conf}
+
+\definecolor{darkgreen}{RGB}{0, 100, 0}
+\definecolor{navy}{RGB}{0, 0, 128}
+\definecolor{darkmagenta}{RGB}{139, 0, 139}
+\definecolor{crimson}{RGB}{220, 20, 60}
+\definecolor{darkorange}{RGB}{255, 140, 0}
+
+
+
+\title[A Local Detection Approach for NER \& MD]{
+	A Local Detection Approach for \\
+	Named Entity Recognition and Mention Detection
+}
+\author{
+	Mingbin Xu \\
+	% \scriptsize Joint work with Hui Jiang and Sedtawut Watcharawittayakul
+}
+\institute{
+	Lassonade School of Engineering,
+	York University,
+	Canada
+}
+\date{ACL2017}
+
+\begin{document}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\begin{frame}
+\frametitle{Outline}
+\tableofcontents
+\end{frame}
+
+
+\section{Introduction}
+
+\subsection{Task Definition}
+
+\begin{frame}
+\frametitle{Entity Discovery}
+\begin{definition}
+	A sub-task of information extraction that \textcolor{red}{\textbf{finds}} and \textcolor{red}{\textbf{classifies}} entities in text.
+\end{definition}
+\begin{example}[CoNLL2003 annotation]
+	\textcolor{darkorange}{$[Hinto]_{PER}$}, 
+	a professor of \textcolor{navy}{$[University\ of\ Toronto]_{ORG}$}, 
+	spends several months in \textcolor{navy}{$[Google]_{ORG}$}'s 
+	\textcolor{darkgreen}{$[Mountain\ View]_{LOC}$} office every year.
+\end{example}
+\begin{columns}
+	\column{0.5 \textwidth}
+	\column{0.5 \textwidth}
+	\begin{description}
+		\setlength\itemsep{0.05em}
+		\small
+		\item[\textcolor{darkorange}{PER}] Person
+		\item[\textcolor{darkgreen}{LOC}] Location
+		\item[\textcolor{navy}{ORG}] Organization
+		\item[\textcolor{darkmagenta}{MISC}] Miscellaneous
+	\end{description}
+\end{columns}
+\end{frame}
+
+\begin{frame}
+\frametitle{Entity Discovery}
+\begin{definition}
+	A sub-task of information extraction that \textcolor{red}{\textbf{finds}} and \textcolor{red}{\textbf{classifies}} entities in text.
+\end{definition}
+\begin{example}[KBP EDL annotation]
+	\textcolor{darkorange}{$[Hinto]_{\textit{PER-NAM}}$}, 
+	a \textcolor{darkorange}{$[professor]_{\textit{PER-NOM}}$} of \textcolor{navy}{$[University\ of\ \textcolor{darkmagenta}{[Toronto]_{\textit{GPE-NAM}}}]_{\textit{ORG-NAM}}$}, 
+	spends several months in \textcolor{navy}{$[Google]_{\textit{ORG-NAM}}$}'s 
+	\textcolor{darkgreen}{$[Mountain\ View]_{\textit{LOC-NAM}}$} office every year.
+\end{example}
+\begin{columns}
+	\column{0.3 \textwidth}
+	\column{0.7 \textwidth}
+	\begin{description}
+		\scriptsize
+		\setlength\itemsep{0.02em}
+		\small
+		\item[\textcolor{darkorange}{PER-\{NAME, NOMINAL\}}] Person
+		\item[\textcolor{darkgreen}{LOC-\{NAME, NOMINAL\}}] Location
+		\item[\textcolor{navy}{ORG-\{NAME, NOMINAL\}}] Organization
+		\item[\textcolor{darkmagenta}{GPE-\{NAME, NOMINAL\}}] Geo-Political Entity
+		\item[\textcolor{crimson}{FAC-\{NAME, NOMINAL\}}] Facility
+	\end{description}
+\end{columns}
+\end{frame}
+
+\subsection{Literature Review}
+
+\begin{frame}
+\frametitle{Literature Review}
+\end{frame}
+
+
+
+\section{Preliminary}
+
+\subsection{Fixed-size Ordinally Forgetting Encoding}
+
+\begin{frame}
+\frametitle{Fixed-size Ordinally Forgetting Encoding}
+\begin{definition}[FOFE]
+	\begin{itemize}
+	\item $S = w_1, w_2, ..., w_n$ is a sequence of any discrete symbols;
+	\item $w_i$ is represented as $\bm{e_i}$ in 1-hot representation;
+	\item the encoding of a partial sequence up to the $t$-th word is recursively defined as \parencite{zhang2015fixed}:
+	\begin{equation}
+		\nonumber
+		\bm{z_t}=
+		\begin{cases}
+		\bm{0}, & \text{if}\ t = 0 \\
+		\alpha \cdot \bm{z_{t - 1}} + \bm{e_t}, & \text{otherwise}
+		\end{cases}  \label{eq-fofe-def}
+	\end{equation}
+	\item $\alpha \in (0, 1)$ and $t \in \{{\mathbb Z}|1 \le x \le n\}$
+	\end{itemize}
+\end{definition}
+\end{frame}
+
+\begin{frame}
+\frametitle{Fixed-size Ordinally Forgetting Encoding}
+\begin{columns}
+	\column{0.28 \textwidth}
+	\begin{table}
+		\centering
+		\resizebox{\linewidth}{!}{
+		\begin{tabular}{|c|c|}
+			\hline
+			WORD & 1-HOT \\
+			\hline\hline
+			$w_0$ & $1000000$ \\
+			$w_1$ & $0100000$ \\
+			$w_2$ & $0010000$ \\
+			$w_3$ & $0001000$ \\
+			$w_4$ & $0000100$ \\
+			$w_5$ & $0000010$ \\
+			$w_6$ & $0000001$ \\
+			\hline
+		\end{tabular}}
+		\caption{\scriptsize Vocab of size 7}
+	\end{table}
+	\column{0.77 \textwidth}
+	\begin{table}
+		\centering
+		\resizebox{\linewidth}{!}{
+		\begin{tabular}{|l|l|}
+			\hline
+			PARTIAL SEQUENCE & FOFE \\
+			\hline\hline
+			$w_6$ & $0, 0, 0, 0, 0, 0, 1$ \\
+			$w_6, w_4$ & $0, 0, 0, 0, 1, 0, \alpha$ \\
+			$w_6, w_4, w_5$ & $0, 0, 0, 0, \alpha, 1, \alpha^2$ \\
+			$w_6, w_4, w_5, w_0$ & $1, 0, 0, 0, \alpha^2, \alpha, \alpha^3$ \\
+			$w_6, w_4, w_5, w_0, w_5$ & $\alpha, 0, 0, 0, \alpha^3, 1 + \alpha^2, \alpha^4$ \\
+			$w_6, w_4, w_5, w_0, w_5, w_4$ & $\alpha^2, 0, 0, 0, 1 + \alpha^4, \alpha + \alpha^3, \alpha^5$ \\
+			\hline
+		\end{tabular}}
+		\caption{\scriptsize Partial encoding of $w_6, w_4, w_5, w_0, w_5, w_4$}
+	\end{table}
+\end{columns}
+\end{frame}
+
+\subsection{Uniqueness of FOFE}
+
+\begin{frame}
+\frametitle{Uniqueness of FOFE}
+\begin{theorem}
+	If the forgetting factor $\alpha$ satisfies $0 < \alpha \leq 0.5$, 
+	FOFE is unique for any countable vocabulary $V$ and any finite value $T$.
+\end{theorem}
+\begin{theorem}
+	For $0.5 < \alpha < 1 $, given any finite value $T$ and any countable vocabulary $V$,
+	FOFE is almost unique everywhere, except only a finite set of countable choices of $\alpha$.
+\end{theorem}
+\begin{proof}
+	% \begin{enumerate}[i]
+	% \item 
+	(1) $\sum\limits_{n=0}^{\infty} \alpha^n \le 1$; \\
+	% \item 
+	(2) $c_0 \times \alpha^0 + c_1 \times \alpha^1 + ... + c_n \times \alpha^n = 0$, $c_i \in \{-1, 0, 1\}$
+	% \end{enumerate}
+\end{proof}
+\end{frame}
+
+
+
+\section{Local Detection Algorithm}
+
+\subsection{Algorithm}
+
+\begin{frame}
+\frametitle{Local Detection}
+\begin{block}{Intuition}
+	\begin{itemize}
+	\item People rarely conduct a global decoding over the entire sentence to pinpoint entities.
+	\item The key to accurate local is to have full access to
+		\textbf{\textcolor{red}{the fragment itself}}, and
+		\textbf{\textcolor{red}{its contextual information}}.
+	\item FOFE is a \textbf{\textcolor{red}{lossless}} representation of \textbf{\textcolor{red}{fixed length}}.
+	\end{itemize}
+\end{block}
+\begin{example}
+    \begin{itemize}
+    \item \textbf{\textcolor{navy}{$[S.E.C.]_{ORG}$}} chief 
+            \textbf{\textcolor{darkorange}{$[Mary\ Shapiro]_{PER}$}} left 
+            \textbf{\textcolor{darkgreen}{$[Washington]_{LOC}$}} in December. \\
+    \item Do the entity types of ``S.E.C'' and ``Washington'' matter? Howa about:
+    \textbf{Our} chief Mary Shapiro left \textbf{us} in December?
+    \end{itemize}
+\end{example}
+\end{frame}
+\begin{frame}
+\begin{block}{Algorithm}
+	\begin{itemize}
+	\item Extract features from \textbf{\textcolor{red}{each segment}} and send them to an FFNN.
+	\item Remove overlapping / inconsistent labels.
+	\end{itemize}
+\end{block}
+\end{frame}
+
+
+\subsection{Feature Extraction}
+
+\begin{frame}
+\frametitle{Feature Extraction}
+\end{frame}
+
+
+
+\section{Experiments} 
+
+
+\subsection{CoNLL2003}
+
+\begin{frame}
+\frametitle{CoNLL2003 Shared Task}
+\begin{block}{CoNLL2003 Shared Task}
+	\begin{itemize}
+	\item newswire from the Reuters RCV1 corpus;
+	\item tagged with 4 types of \textbf{\textcolor{red}{non-nested}} named entities: 
+			\textcolor{darkorange}{Person (PER)}, 
+			\textcolor{navy}{Organization (ORG)},
+			\textcolor{darkgreen}{Location (LOC)}, and
+			\textcolor{darkmagenta}{Miscellaneous (MISC)}.
+	\end{itemize}
+\end{block}
+\begin{table}
+    \centering
+    \resizebox{0.9 \textwidth}{!}{
+    \begin{tabular}{c|ccc|cccc}
+         & Articles & Sentences & Tokens & LOC & MISC & ORG & PER \\
+        \hline
+        train & 946 & 14,987 & 203,621 & 7,140 & 3,438 & 6,321 & 6,600 \\
+        dev & 216 & 3,466 & 51,362 & 1,837 & 922 & 1,341 & 1,842  \\
+        test & 231 & 3,684 & 46,435 & 1,668 & 702 & 1,661 & 1,617 
+    \end{tabular}}
+    \caption{\scriptsize Data distribution of CoNLL2003}
+\end{table}
+\end{frame}
+
+\begin{frame}
+\frametitle{Feature Effectiveness}
+\begin{table}
+	% \scriptsize
+	\centering
+	\resizebox{0.93\linewidth}{!}{
+	\begin{tabular}{|l|l|l|lll|}
+		\hline
+		\multicolumn{3}{|c|}{FEATURE} & P & R & F1\\
+		\hline\hline
+		\multirow{6}{*}{\shortstack{word\\level}} & 
+		\multirow{3}{*}{\shortstack[l]{case-\\insensitive}} &
+		context FOFE incl. word fragment & 86.64 & 77.04 & 81.56 \\
+		& &context FOFE excl. word fragment & 53.98 & 42.17 & 47.35  \\
+		& & BoW of word fragment & 82.92 & 71.85 & 76.99  \\ \cline{2-6} 
+		& \multirow{3}{*}{\shortstack[l]{case-\\sensitive}} & 
+		context FOFE incl. word fragment & 88.88 & 79.83 &84.12  \\
+		& &context FOFE excl. word fragment & 50.91 & 42.46 & 46.30  \\
+		& & BoW of word fragment & 85.41 & 74.95 & 79.84  \\ \hline
+		\multirow{2}{*}{\shortstack{char\\level}} &
+		\multicolumn{2}{l|}{Char FOFE of word fragment} & 67.67 & 52.78 & 59.31  \\
+		& \multicolumn{2}{l|}{Char CNN of word fragment} & 78.93 & 69.49 & 73.91 \\ \hline
+		\multicolumn{3}{|l|}{all case-insensitive features} &  90.11 & 82.75 &  86.28  \\ 
+		\multicolumn{3}{|l|}{all case-sensitive features} & 90.26 & 86.63 & 88.41 \\ 
+		\multicolumn{3}{|l|}{all word-level features} & 92.03 & 86.08 & 88.96  \\ \hline
+		\multicolumn{3}{|l|}{all word-level \& Char FOFE features} & 91.68 &  88.54 & \bf 90.08 \\
+		\multicolumn{3}{|l|}{all word-level \& Char CNN features} & 91.80 & 88.58 & \bf 90.16 \\ \hline
+		\multicolumn{3}{|l|}{all word-level \& all char-level features}  & 93.29 &  88.27 &  \bf 90.71  \\
+		\multicolumn{3}{|l|}{all features + {\bf dev set} + 5-fold cross-validation} & 92.58 &  89.31 &  \bf 90.92  \\
+		\multicolumn{3}{|l|}{all features + {\bf 2nd-pass}} & 92.13 &  89.61 &  \bf 90.85  \\
+		\multicolumn{3}{|l|}{all features + {\bf 2nd-pass} + {\bf dev set} + 5-fold cross-validation} & 92.62 &  89.77 &  \bf 91.17 \\
+		\hline
+	\end{tabular}}
+	\caption{\scriptsize Effect of various FOFE feature combinations on the CoNLL2003 test data.}
+	\label{tbl:feat-cmp:CoNLL03}
+\end{table}
+\end{frame}
+
+\begin{frame}
+\frametitle{Comparison between Neural Network Models}
+\begin{table}
+	\centering
+	\resizebox{\linewidth}{!}{
+	\begin{tabular}{|l|lllll|l|}
+		\hline
+		 algorithm & word & char & gaz & cap & pos & F1 \\
+		\hline\hline
+		 {CNN-BLSTM-CRF} \parencite{collobert2011natural} & \cmark & \xmark & \cmark & \cmark & \xmark & 89.59  \\
+		 {BLSTM-CRF} \parencite{huang2015bidirectional}  &\cmark & \cmark & \cmark & \cmark & \cmark & 90.10 \\
+		 {BLSTM-CRF} \parencite{rondeau2016lstm}  & \cmark & \xmark & \cmark & \cmark & \cmark & 89.28 \\
+		{BLSTM-CRF, char-CNN} \parencite{chiu2016named}  & \cmark & \cmark & \cmark & \xmark & \xmark & {\bf 91.62} \\
+		{Stack-LSTM-CRF, char-LSTM} \parencite{lample2016neural}  & \cmark & \cmark & \xmark & \xmark & \xmark & {\bf 90.94} \\
+		\hline \hline
+		{\bf FOFE-NER} (single)  & \cmark & \cmark & \xmark & \xmark & \xmark & {\bf 90.85} \\
+		{\bf FOFE-NER} (ensemble)  & \cmark & \cmark & \xmark & \xmark & \xmark & {\bf 91.17} \\
+		\hline
+	\end{tabular}}
+	\caption{\scriptsize Performance ($F_1$ score) comparison among various neural models reported on the CoNLL dataset, and the different features used in these methods.}
+	\label{tbl:nn-cmp:CoNLL03}
+\end{table}
+\end{frame}
+
+
+
+
+\subsection{EDL in KBP2015}
+
+\begin{frame}
+\frametitle{EDL in KBP2015}
+\end{frame}
+
+\subsection{EDL in KBP2016}
+
+\begin{frame}
+\frametitle{EDL in KBP2016}
+\end{frame}
+
+
+\appendix
+
+\begin{frame}
+\begin{center}
+{\huge \textsc{Thank You!}}\\
+\ \\
+{\huge \textsc{(Q\&A)}}
+\end{center}
+\end{frame}
+
+\begin{frame}[noframenumbering,allowframebreaks]
+\printbibliography[heading=none]
+\end{frame}
+
+
+
+
+\end{document}
