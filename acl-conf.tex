@@ -22,6 +22,8 @@
 \newcommand{\cmark}{\ding{51}}
 \newcommand{\xmark}{\ding{55}}
 
+
+
 \usepackage[style=authoryear]{biblatex}
 \bibliography{acl-conf}
 
@@ -31,6 +33,9 @@
 \definecolor{crimson}{RGB}{220, 20, 60}
 \definecolor{darkorange}{RGB}{255, 140, 0}
 
+\definecolor{lightyellow}{RGB}{255,255,224}
+\definecolor{aliceblue}{RGB}{240,248,255}
+
 
 
 \title[A Local Detection Approach for NER \& MD]{
@@ -38,8 +43,10 @@
 	Named Entity Recognition and Mention Detection
 }
 \author{
-	Mingbin Xu \\
-	% \scriptsize Joint work with Hui Jiang and Sedtawut Watcharawittayakul
+	\textbf{Mingbin Xu} \\ 
+	% \vspace{1cm}
+	% {\scriptsize Joint work with \\
+	% 	\textbf{Hui Jiang} and \textbf{Sedtawut Watcharawittayakul}}
 }
 \institute{
 	Lassonade School of Engineering,
@@ -116,10 +123,17 @@
 \end{columns}
 \end{frame}
 
-\subsection{Literature Review}
+\subsection{Review}
 
 \begin{frame}
-\frametitle{Literature Review}
+\frametitle{Review}
+\begin{figure}
+	\centering
+	\resizebox{0.7 \textwidth}{!}{
+		\includegraphics{popular-ner}
+	}
+	\caption{\scriptsize Illustration of popular neuro-NER models}
+\end{figure}
 \end{frame}
 
 
@@ -235,7 +249,7 @@
     \item \textbf{\textcolor{navy}{$[S.E.C.]_{ORG}$}} chief 
             \textbf{\textcolor{darkorange}{$[Mary\ Shapiro]_{PER}$}} left 
             \textbf{\textcolor{darkgreen}{$[Washington]_{LOC}$}} in December. \\
-    \item Do the entity types of ``S.E.C'' and ``Washington'' matter? Howa about:
+    \item Do the entity types of ``S.E.C'' and ``Washington'' matter? How about:
     \textbf{Our} chief Mary Shapiro left \textbf{us} in December?
     \end{itemize}
 \end{example}
@@ -247,6 +261,13 @@
 	\item Remove overlapping / inconsistent labels.
 	\end{itemize}
 \end{block}
+\begin{figure}
+	\centering
+	\resizebox{0.88 \textwidth}{!}{
+		\includegraphics{algo}
+	}
+	\caption{\scriptsize Illustration of local detection}
+\end{figure}
 \end{frame}
 
 
@@ -254,6 +275,122 @@
 
 \begin{frame}
 \frametitle{Feature Extraction}
+\begin{block}{Feature Extraction}
+	\footnotesize
+	\begin{table}
+		%\small
+		\centering
+		\begin{tabular}{|r|p{0.36\textwidth}|p{0.44\textwidth}|}
+		% \resizebox{0.96 \textwidth}{!}{
+		% \begin{tabular}{r|l|l}
+		\hline
+		& text segment & context \\
+		\hline \hline
+		\multirow{5}{*}{\shortstack{word\\level}}
+		& \multirow{3}{*}{\textcolor<2>{red}{BoW}} 
+		&   \textcolor<5>{red}{left FOFE excl. text fragment} \\ \cline{3-3}
+		& & \textcolor<5>{red}{right FOFE excl. text fragment} \\ \cline{3-3}
+		& & second-pass enhancement \\ \cline{2-3}
+		& \multicolumn{2}{c|}{\textcolor<6>{red}{left FOFE incl. text fragment}}\\ \cline{2-3}
+		& \multicolumn{2}{c|}{\textcolor<7>{red}{right FOFE incl. text fragment}} \\
+		\hline
+		\multirow{2}{*}{\shortstack{char\\level}}
+		& \textcolor<4>{red}{Char CNN \parencite{kim2015character}} & \multirow{2}{*}{N/A} \\
+		& \textcolor<3>{red}{Char FOFE} & \\
+		\hline
+		\end{tabular}%}
+	\end{table}
+\end{block}
+\begin{example}[\footnotesize examining `Mary Shapiro']
+	\footnotesize
+	\begin{overprint}
+		\centering
+		\onslide<1>
+			\textbf{\textcolor{navy}{$[S.E.C.]_{ORG}$}} chief
+		    \textbf{\textcolor{darkorange}{$[Mary\ Shapiro]_{PER}$}}
+		    left \textbf{\textcolor{darkgreen}{$[Washington]_{LOC}$}} in December.
+		\onslide<2-4>
+			\textbf{\textcolor{navy}{$[S.E.C.]_{ORG}$}} chief
+    		\colorbox{lightyellow}{\textbf{\textcolor{darkorange}{$[Mary\ Shapiro]_{PER}$}}}
+    		left \textbf{\textcolor{darkgreen}{$[Washington]_{LOC}$}} in December.
+		\onslide<5>
+			\colorbox{lightyellow}{\textbf{\textcolor{navy}{$[S.E.C.]_{ORG}$}} chief}
+		    \textbf{\textcolor{darkorange}{$[Mary\ Shapiro]_{PER}$}}
+		    \colorbox{lightyellow}{left \textbf{\textcolor{darkgreen}{$[Washington]_{LOC}$}} in December.}
+		\onslide<6>
+			\colorbox{lightyellow}{
+				\textbf{\textcolor{navy}{$[S.E.C.]_{ORG}$}} chief
+		    	\textbf{\textcolor{darkorange}{$[Mary\ Shapiro]_{PER}$}}
+		    }
+		    left \textbf{\textcolor{darkgreen}{$[Washington]_{LOC}$}} in December.
+		\onslide<7>
+			\textbf{\textcolor{navy}{$[S.E.C.]_{ORG}$}} chief
+			\colorbox{lightyellow}{
+		    	\textbf{\textcolor{darkorange}{$[Mary\ Shapiro]_{PER}$}}
+		    	left \textbf{\textcolor{darkgreen}{$[Washington]_{LOC}$}} in December.
+		    }
+	\end{overprint}
+\end{example}
+\end{frame}
+
+\subsection{2nd-pass Enhancement}
+
+\begin{frame}
+\frametitle{2nd-pass Enhancement}
+\begin{block}{2nd-pass Trainer}
+	If we substitute entities in context with general types, the model
+	\begin{itemize}
+	\item captures the semantic roles of other entities,
+	\item filters out unwanted constructs and sparse combinations, and
+	\item enables longer context expansion.
+	\end{itemize}
+\end{block}
+\begin{example}[\scriptsize Examining ``University of Toronto'']
+	\textcolor{darkorange}{{\textless}PER{\textgreater}}, 
+	a professor of \textcolor{navy}{$[University\ of\ Toronto]_{ORG}$}, 
+	spends several months in \textcolor{navy}{{\textless}ORG{\textgreater}}'s 
+	\textcolor{darkgreen}{{\textless}LOC{\textgreater}} office every year.
+\end{example}
+\end{frame}
+
+\begin{frame}
+\frametitle{2nd-pass Enhancement}
+\begin{figure}
+	\centering
+	\resizebox{0.81 \textwidth}{!}{
+		\includegraphics{system}
+	}
+	% \caption{\scriptsize Illustration of 2nd-pass}
+\end{figure}
+\end{frame}
+
+
+\subsection{Model Advantage}
+
+\begin{frame}
+\frametitle{Model Advantages}
+\small
+\begin{block}{Computational Efficiency}
+	\begin{itemize}
+		\item FOFE can be expressed as sparse matrix, i.e. $indices$ \& $values$
+		\item $fofe(seq) \cdot embed = 
+				[\alpha^{n-1}, ..., \alpha, 1] \cdot lookup(seq, embed)$
+		% \item Expensive modules like LSTM and CRF are avoided.
+	\end{itemize}
+\end{block}
+\begin{block}{Data Availability}
+	Correct annotation for the entire sentence is NOT a must.
+	\begin{itemize}
+		\item Data annotated with different standard are more usable.
+		\item Wikipedia highlights an entity's first appearance.{\scriptsize\parencite{nothman2013learning}}
+	\end{itemize}
+\end{block}
+\begin{alertblock}{Advantage over Known Methods}
+	\begin{itemize}
+		\item Nested depth control
+		\item Feature-engineering-free
+	\end{itemize}
+\end{alertblock}
 \end{frame}
 
 
@@ -286,6 +423,7 @@
         test & 231 & 3,684 & 46,435 & 1,668 & 702 & 1,661 & 1,617 
     \end{tabular}}
     \caption{\scriptsize Data distribution of CoNLL2003}
+    \label{tbl:conll2003stat}
 \end{table}
 \end{frame}
 
@@ -294,7 +432,8 @@
 \begin{table}
 	% \scriptsize
 	\centering
-	\resizebox{0.93\linewidth}{!}{
+	% \resizebox{0.93\linewidth}{!}{
+	\resizebox{0.98\linewidth}{!}{
 	\begin{tabular}{|l|l|l|lll|}
 		\hline
 		\multicolumn{3}{|c|}{FEATURE} & P & R & F1\\
@@ -302,7 +441,7 @@
 		\multirow{6}{*}{\shortstack{word\\level}} & 
 		\multirow{3}{*}{\shortstack[l]{case-\\insensitive}} &
 		context FOFE incl. word fragment & 86.64 & 77.04 & 81.56 \\
-		& &context FOFE excl. word fragment & 53.98 & 42.17 & 47.35  \\
+		& &context FOFE excl. word fragment & 53.98 & 42.17 & 47.35 \\
 		& & BoW of word fragment & 82.92 & 71.85 & 76.99  \\ \cline{2-6} 
 		& \multirow{3}{*}{\shortstack[l]{case-\\sensitive}} & 
 		context FOFE incl. word fragment & 88.88 & 79.83 &84.12  \\
@@ -317,14 +456,19 @@
 		\multicolumn{3}{|l|}{all word-level \& Char FOFE features} & 91.68 &  88.54 & \bf 90.08 \\
 		\multicolumn{3}{|l|}{all word-level \& Char CNN features} & 91.80 & 88.58 & \bf 90.16 \\ \hline
 		\multicolumn{3}{|l|}{all word-level \& all char-level features}  & 93.29 &  88.27 &  \bf 90.71  \\
-		\multicolumn{3}{|l|}{all features + {\bf dev set} + 5-fold cross-validation} & 92.58 &  89.31 &  \bf 90.92  \\
-		\multicolumn{3}{|l|}{all features + {\bf 2nd-pass}} & 92.13 &  89.61 &  \bf 90.85  \\
-		\multicolumn{3}{|l|}{all features + {\bf 2nd-pass} + {\bf dev set} + 5-fold cross-validation} & 92.62 &  89.77 &  \bf 91.17 \\
+		% \multicolumn{3}{|l|}{all features + {\bf dev set} + 5-fold cross-validation} & 92.58 &  89.31 &  \bf 90.92  \\
+		% \multicolumn{3}{|l|}{all features + {\bf 2nd-pass}} & 92.13 &  89.61 &  \bf 90.85  \\
+		% \multicolumn{3}{|l|}{all features + {\bf 2nd-pass} + {\bf dev set} + 5-fold cross-validation} & 92.62 &  89.77 &  \bf 91.17 \\
 		\hline
 	\end{tabular}}
 	\caption{\scriptsize Effect of various FOFE feature combinations on the CoNLL2003 test data.}
 	\label{tbl:feat-cmp:CoNLL03}
 \end{table}
+% \pause
+%   \vskip-3cm
+%   \begin{block}{The Overlay Block}
+%     Block Text
+%   \end{block}
 \end{frame}
 
 \begin{frame}
@@ -342,8 +486,10 @@
 		{BLSTM-CRF, char-CNN} \parencite{chiu2016named}  & \cmark & \cmark & \cmark & \xmark & \xmark & {\bf 91.62} \\
 		{Stack-LSTM-CRF, char-LSTM} \parencite{lample2016neural}  & \cmark & \cmark & \xmark & \xmark & \xmark & {\bf 90.94} \\
 		\hline \hline
-		{\bf FOFE-NER} (single)  & \cmark & \cmark & \xmark & \xmark & \xmark & {\bf 90.85} \\
-		{\bf FOFE-NER} (ensemble)  & \cmark & \cmark & \xmark & \xmark & \xmark & {\bf 91.17} \\
+		{\bf FOFE-NER} (single) & \cmark & \cmark & \xmark & \xmark & \xmark & {\bf 90.71} \\
+		{\bf FOFE-NER} (single) + 2nd-pass  & \cmark & \cmark & \xmark & \xmark & \xmark & {\bf 90.85} \\
+		{\bf FOFE-NER} (ensemble) + dev  & \cmark & \cmark & \xmark & \xmark & \xmark & {\bf 90.92} \\
+		{\bf FOFE-NER} (ensemble) + dev + 2nd-pass  & \cmark & \cmark & \xmark & \xmark & \xmark & {\bf 91.17} \\
 		\hline
 	\end{tabular}}
 	\caption{\scriptsize Performance ($F_1$ score) comparison among various neural models reported on the CoNLL dataset, and the different features used in these methods.}
@@ -355,15 +501,134 @@
 
 
 \subsection{EDL in KBP2015}
+\label{subsec:kbp2015}
 
 \begin{frame}
 \frametitle{EDL in KBP2015}
+\begin{block}{EDL Track in KBP2015 \parencite{kbpoverview2015}}
+\begin{itemize}
+	\item Requires to identify entities \textbf{\textcolor{red}{(including nested entities)}} from English, Chinese and Spanish documents.
+	\item 5 entity types are defined, i.e. Person (PER), Geo-political Entity (GPE), Organization (ORG), Location (LOC) and Facility (FAC).
+	\item Documents are related but \textbf{\textcolor{red}{non-parallel}} across languages. 
+\end{itemize}
+\end{block}
+\begin{table}
+	%\resizebox{\linewidth}{!}{
+		\centering
+		\begin{tabular}{|l|c|c|c|c|}
+			\hline
+			& English & Chinese & Spanish & ALL \\
+			\hline
+			Train & 168 & 147 & 129 & 444 \\
+			Eval & 167 & 167 & 166 & 500 \\
+			\hline
+		\end{tabular}%}
+	\caption{\scriptsize Number of Documents in KBP2015}
+	\label{tbl:kbp2015stat}
+\end{table}
 \end{frame}
+
+\begin{frame}
+\frametitle{EDL in KBP2015}
+\begin{table}
+% \resizebox{\linewidth}{!}{
+	\centering
+	\begin{tabular}{|l|lll|lll|}
+		\hline
+		\ & \multicolumn{3}{c|}{2015 track best} & \multicolumn{3}{c|}{FOFE-NER} \\
+		\cline{2-7}
+		\ & $P$ & $R$ & $F_{1}$ & $P$ & $R$ & $F_{1}$ \\
+		\hline \hline
+		Trilingual & 75.9 & 69.3 & 72.4 & 78.3 & 69.9 & \bf 73.9 \\
+		English & 79.2 & 66.7 & \bf 72.4 & 77.1 & 67.8 & 72.2 \\
+		Chinese & 79.2 & 74.8 & \bf 76.9 & 79.3 & 71.7 & 75.3 \\
+		Spanish & 78.4 & 72.2 & 75.2 & 79.9 & 71.8 & \bf 75.6 \\
+		\hline
+	\end{tabular}%}
+	\caption{\scriptsize Entity Discovery Performance of our method on the KBP2015 EDL evaluation data, with comparison to the best systems in KBP2015 official evaluation.}
+	\label{tbl:kbp2015cmp}
+\end{table}
+\end{frame}
+
 
 \subsection{EDL in KBP2016}
 
 \begin{frame}
 \frametitle{EDL in KBP2016}
+\begin{block}{EDL Track in KBP2016 \parencite{kbpoverview2016}}
+\begin{itemize}
+	\item The task is extended to detect \textbf{nominal mentions} of all 5 entity typess. 
+	\item We treat nominal mention types as some extra entity types and detect them along with named entities.  
+\end{itemize}
+\end{block}
+\begin{example}
+	\textcolor{darkorange}{$[Hinto]_{\textit{PER-NAM}}$}, 
+	a \colorbox{lightyellow}{\textcolor{darkorange}{$[professor]_{\textit{PER-NOM}}$}} of \textcolor{navy}{$[University\ of\ \textcolor{darkmagenta}{[Toronto]_{\textit{GPE-NAM}}}]_{\textit{ORG-NAM}}$}, 
+	spends several months in \textcolor{navy}{$[Google]_{\textit{ORG-NAM}}$}'s 
+	\textcolor{darkgreen}{$[Mountain\ View]_{\textit{LOC-NAM}}$} office every year.
+\end{example}
+\end{frame}
+
+\begin{frame}
+\frametitle{Training Data for KBP2016}
+\begin{block}{Training and evaluation data in KBP2015}
+	(described before), nominal mentions are not labeled.
+\end{block}
+\begin{block}{Machine-labeled Wikipedia (WIKI)}
+	When terms or names are first mentioned in a Wikipedia article they are often linked to the corresponding Wikipedia page by hyperlinks. 
+\end{block} 
+\begin{block}{In-house dataset}
+	A set of 10,000 English and Chinese documents is manually labeled using some annotation rules similar to the KBP 2016 guidelines.
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{Dataset Effectivness}
+\begin{table}
+	\centering
+	\begin{tabular}{|l|ll|l|}
+		\hline
+		training data & P  & R & $F_1$ \\ \hline \hline
+		KBP2015 & 0.836 & 0.598 & 0.697 \\
+		KBP2015 + WIKI &  0.837 & 0.628 & \bf 0.718 \\
+		KBP2015 + in-house & 0.836 & 0.680 & \bf 0.750 \\ 
+		\hline
+	\end{tabular}
+	\caption{\scriptsize Our entity discovery official performance (English only) in KBP2016 is shown as a comparison of three models trained by different combinations of training data sets. }
+	\label{tbl:kbp2016dataset}	
+\end{table}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Ensemble Effectiveness}
+\begin{table}
+	\centering
+	\resizebox{\textwidth}{!}{
+	\begin{tabular}{|l|lll|lll|lll|}
+		\hline
+		\multirow{2}{*}{LANG}  &
+		\multicolumn{3}{c|}{single} & \multicolumn{3}{c|}{ensemble} & \multicolumn{3}{c|}{2016 Best}\\
+		& P & R & F1 & P & R & F1 & P & R & F1\\
+		\hline \hline
+		ENG & 0.836 & 0.680 & 0.750 & 0.810 & 0.745 & \textbf{0.776} & 0.846 & 0.710 & 0.772 \\
+		CMN & 0.789 & 0.625 & 0.698 & 0.729 & 0.698 & \textbf{0.713} & 0.789 & 0.737 & 0.762 \\
+		SPA & 0.835 & 0.602 & 0.700 & \multicolumn{3}{c|}{Coming Soon} & 0.839 & 0.656 & 0.736 \\
+		ALL & 0.819 & 0.639 & {\bf 0.718} & \multicolumn{3}{c|}{Coming Soon} & 0.802 & 0.704 & 0.756  \\
+		\hline 
+	\end{tabular}}
+	% \begin{tabular}{|l|lll|lll|}
+	% 	\hline
+	% 	\multirow{2}{*}{LANG} & \multicolumn{3}{c|}{FOFE-NER} & \multicolumn{3}{c|}{Track Best} \\
+	% 	& P & R & F1 & P & R & F1 \\
+	% 	CMN & \\
+	% 	SPA & \\
+	% 	ALL & \\
+	% 	\hline 
+	% \end{tabular}
+	\caption{\scriptsize Official entity discovery performance of our methods on KBP2016 trilingual EDL track. Nominal mentions in Spanish are ignored since no training data is found for them.}
+	\label{tbl:kbp2016cmp}
+\end{table}
 \end{frame}
 
 
