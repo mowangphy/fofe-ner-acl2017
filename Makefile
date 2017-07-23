@@ -1,10 +1,11 @@
 all: acl-conf
 
 acl-paper:
-	latexmk -pdf fofe4ner.tex
+	latexmk -bibtex -pdf fofe4ner.tex
 
 acl-conf:
-	latexmk -pdf acl-conf.tex
+	latexmk -bibtex -pdf acl-conf.tex
 
 clean:
+	latexmk -C
 	rm -f `ls | egrep -v ".*\.(tex|bib|pdf|cls|png|pptx|bst)|Makefile"`

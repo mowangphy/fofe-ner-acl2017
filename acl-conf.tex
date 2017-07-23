@@ -35,26 +35,34 @@
 
 \definecolor{lightyellow}{RGB}{255,255,224}
 \definecolor{aliceblue}{RGB}{240,248,255}
+\definecolor{grey}{RGB}{192,192,192}
 
 
 
-\title[A Local Detection Approach for NER \& MD]{
+\title[A Local Detection Approach for NER \& MD \hspace{10mm}
+		\insertframenumber/\inserttotalframenumber]{
 	A Local Detection Approach for \\
 	Named Entity Recognition and Mention Detection
 }
 \author{
-	\textbf{Mingbin Xu} \\ 
+	\textbf{Mingbin Xu} \\
 	% \vspace{1cm}
 	% {\scriptsize Joint work with \\
 	% 	\textbf{Hui Jiang} and \textbf{Sedtawut Watcharawittayakul}}
 }
 \institute{
+	Joint work with \textbf{H. Jiang} and \textbf{S. Watcharawittayakul}\\[2ex]
+
 	Lassonade School of Engineering,
 	York University,
 	Canada
-}
-\date{ACL2017}
 
+	\begin{figure}
+	 	\centering
+	  	\includegraphics[width=4.0cm]{logo}\\
+	\end{figure}
+}
+\date{\small ACL2017}
 \begin{document}
 
 \begin{frame}
@@ -77,7 +85,7 @@
 	A sub-task of information extraction that \textcolor{red}{\textbf{finds}} and \textcolor{red}{\textbf{classifies}} entities in text.
 \end{definition}
 \begin{example}[CoNLL2003 annotation]
-	\textcolor{darkorange}{$[Hinto]_{PER}$}, 
+	\textcolor{darkorange}{$[Hinton]_{PER}$}, 
 	a professor of \textcolor{navy}{$[University\ of\ Toronto]_{ORG}$}, 
 	spends several months in \textcolor{navy}{$[Google]_{ORG}$}'s 
 	\textcolor{darkgreen}{$[Mountain\ View]_{LOC}$} office every year.
@@ -102,7 +110,7 @@
 	A sub-task of information extraction that \textcolor{red}{\textbf{finds}} and \textcolor{red}{\textbf{classifies}} entities in text.
 \end{definition}
 \begin{example}[KBP EDL annotation]
-	\textcolor{darkorange}{$[Hinto]_{\textit{PER-NAM}}$}, 
+	\textcolor{darkorange}{$[Hinton]_{\textit{PER-NAM}}$}, 
 	a \textcolor{darkorange}{$[professor]_{\textit{PER-NOM}}$} of \textcolor{navy}{$[University\ of\ \textcolor{darkmagenta}{[Toronto]_{\textit{GPE-NAM}}}]_{\textit{ORG-NAM}}$}, 
 	spends several months in \textcolor{navy}{$[Google]_{\textit{ORG-NAM}}$}'s 
 	\textcolor{darkgreen}{$[Mountain\ View]_{\textit{LOC-NAM}}$} office every year.
@@ -162,8 +170,12 @@
 \end{definition}
 \end{frame}
 
+
 \begin{frame}
 \frametitle{Fixed-size Ordinally Forgetting Encoding}
+\begin{alertblock}{}
+	Any \textcolor{red}{\textbf{variable length}} sequence is encoded into a \textcolor{red}{\textbf{fixed-size}} vector.
+\end{alertblock}
 \begin{columns}
 	\column{0.28 \textwidth}
 	\begin{table}
@@ -217,16 +229,61 @@
 	For $0.5 < \alpha < 1 $, given any finite value $T$ and any countable vocabulary $V$,
 	FOFE is almost unique everywhere, except only a finite set of countable choices of $\alpha$.
 \end{theorem}
-\begin{proof}
-	% \begin{enumerate}[i]
-	% \item 
-	(1) $\sum\limits_{n=0}^{\infty} \alpha^n \le 1$; \\
-	% \item 
-	(2) $c_0 \times \alpha^0 + c_1 \times \alpha^1 + ... + c_n \times \alpha^n = 0$, $c_i \in \{-1, 0, 1\}$
-	% \end{enumerate}
-\end{proof}
+% \begin{proof}
+% 	% \begin{enumerate}[i]
+% 	% \item 
+% 	(1) $\sum\limits_{n=0}^{\infty} \alpha^n \le 1$; \\
+% 	% \item 
+% 	(2) $c_0 \times \alpha^0 + c_1 \times \alpha^1 + ... + c_n \times \alpha^n = 0$, $c_i \in \{-1, 0, 1\}$
+% 	% \end{enumerate}
+% \end{proof}
 \end{frame}
 
+
+\subsection{Efficiency of FOFE}
+\begin{frame}
+\frametitle{Computational Efficiency of FOFE}
+% \begin{columns}
+	% \column{0.51 \textwidth}
+	\begin{block}{LSTM}
+		One step at a time; each involves 4 matrix multications.
+		\begin{align*}
+		x & = oneHot([w_1, w_2, ..., w_n]) \times W_{embed}\\
+		C_t, h_t & = LSTM(x_t, C_{t-1}, h_{t_1})\\
+		enc([w_1, ..., w_n]) & = C_n
+		\end{align*}
+		% \begin{equation}
+		% 	\begin{aligned}
+		% 		i_t = \sigma(W_i \cdot [h_{t-1}, x_t] + b_i) \\
+		% 		f_t = \sigma(W_f \cdot [h_{t-1}, x_t] + b_f) \\
+		% 		f_t = \sigma(W_o \cdot [h_{t-1}, x_t] + b_o) \\
+		% 		{\tilde{C}}_t = \sigma(W_c \cdot [h_{t-1}, x_t] + b_c) \\
+		% 		C_t = i_t \times {\tilde{C}}_t + f_t \times C_{t-1} \\
+		% 		h_t = o_t \times \sigma(C_t)
+		% 	\end{aligned}
+		% \end{equation}
+	\end{block}
+	% \column{0.51 \textwidth}
+	\begin{block}{FOFE}
+		A single matrix multiplication leads to the final encoding.
+		\begin{align*}
+			alpha & = [\alpha^{n-1}, \alpha^{n-2}, ... , \alpha, 1] \\
+			enc([w_1, ..., w_n])
+			& =
+				\textbf{\textcolor{red}{(}} alpha
+				\times oneHot([w_1, w_2, ..., w_n])
+				\textbf{\textcolor{red}{)}} \times W_{embed} \\
+			& =
+				alpha \times \textbf{\textcolor{red}{(}}
+				oneHot([w_1, w_2, ..., w_n]) \times W_{embed}
+				\textbf{\textcolor{red}{)}}
+		\end{align*}
+	\end{block}
+% \end{columns}
+\end{frame}
+
+
+% TODO: add general architecture of FOFE4NLP
 
 
 \section{Local Detection Algorithm}
@@ -286,11 +343,10 @@
 		\hline
 		& text segment & context \\
 		\hline \hline
-		\multirow{5}{*}{\shortstack{word\\level}}
-		& \multirow{3}{*}{\textcolor<2>{red}{BoW}} 
+		\multirow{4}{*}{\shortstack{word\\level}}
+		& \multirow{2}{*}{\textcolor<2>{red}{BoW}} 
 		&   \textcolor<5>{red}{left FOFE excl. text fragment} \\ \cline{3-3}
-		& & \textcolor<5>{red}{right FOFE excl. text fragment} \\ \cline{3-3}
-		& & second-pass enhancement \\ \cline{2-3}
+		& & \textcolor<5>{red}{right FOFE excl. text fragment} \\ \cline{2-3}
 		& \multicolumn{2}{c|}{\textcolor<6>{red}{left FOFE incl. text fragment}}\\ \cline{2-3}
 		& \multicolumn{2}{c|}{\textcolor<7>{red}{right FOFE incl. text fragment}} \\
 		\hline
@@ -311,21 +367,21 @@
 		    left \textbf{\textcolor{darkgreen}{$[Washington]_{LOC}$}} in December.
 		\onslide<2-4>
 			\textbf{\textcolor{navy}{$[S.E.C.]_{ORG}$}} chief
-    		\colorbox{lightyellow}{\textbf{\textcolor{darkorange}{$[Mary\ Shapiro]_{PER}$}}}
+    		\colorbox{grey}{\textbf{\textcolor{darkorange}{$[Mary\ Shapiro]_{PER}$}}}
     		left \textbf{\textcolor{darkgreen}{$[Washington]_{LOC}$}} in December.
 		\onslide<5>
-			\colorbox{lightyellow}{\textbf{\textcolor{navy}{$[S.E.C.]_{ORG}$}} chief}
+			\colorbox{grey}{\textbf{\textcolor{navy}{$[S.E.C.]_{ORG}$}} chief}
 		    \textbf{\textcolor{darkorange}{$[Mary\ Shapiro]_{PER}$}}
-		    \colorbox{lightyellow}{left \textbf{\textcolor{darkgreen}{$[Washington]_{LOC}$}} in December.}
+		    \colorbox{grey}{left \textbf{\textcolor{darkgreen}{$[Washington]_{LOC}$}} in December.}
 		\onslide<6>
-			\colorbox{lightyellow}{
+			\colorbox{grey}{
 				\textbf{\textcolor{navy}{$[S.E.C.]_{ORG}$}} chief
 		    	\textbf{\textcolor{darkorange}{$[Mary\ Shapiro]_{PER}$}}
 		    }
 		    left \textbf{\textcolor{darkgreen}{$[Washington]_{LOC}$}} in December.
 		\onslide<7>
 			\textbf{\textcolor{navy}{$[S.E.C.]_{ORG}$}} chief
-			\colorbox{lightyellow}{
+			\colorbox{grey}{
 		    	\textbf{\textcolor{darkorange}{$[Mary\ Shapiro]_{PER}$}}
 		    	left \textbf{\textcolor{darkgreen}{$[Washington]_{LOC}$}} in December.
 		    }
@@ -333,51 +389,49 @@
 \end{example}
 \end{frame}
 
-\subsection{2nd-pass Enhancement}
+% \subsection{2nd-pass Enhancement}
 
-\begin{frame}
-\frametitle{2nd-pass Enhancement}
-\begin{block}{2nd-pass Trainer}
-	If we substitute entities in context with general types, the model
-	\begin{itemize}
-	\item captures the semantic roles of other entities,
-	\item filters out unwanted constructs and sparse combinations, and
-	\item enables longer context expansion.
-	\end{itemize}
-\end{block}
-\begin{example}[\scriptsize Examining ``University of Toronto'']
-	\textcolor{darkorange}{{\textless}PER{\textgreater}}, 
-	a professor of \textcolor{navy}{$[University\ of\ Toronto]_{ORG}$}, 
-	spends several months in \textcolor{navy}{{\textless}ORG{\textgreater}}'s 
-	\textcolor{darkgreen}{{\textless}LOC{\textgreater}} office every year.
-\end{example}
-\end{frame}
+% \begin{frame}
+% \frametitle{2nd-pass Enhancement}
+% \begin{block}{2nd-pass Trainer}
+% 	If we substitute entities in context with general types, the model
+% 	\begin{itemize}
+% 	\item captures the semantic roles of other entities,
+% 	\item filters out unwanted constructs and sparse combinations, and
+% 	\item enables longer context expansion.
+% 	\end{itemize}
+% \end{block}
+% \begin{example}[\scriptsize Examining ``University of Toronto'']
+% 	\textcolor{darkorange}{{\textless}PER{\textgreater}}, 
+% 	a professor of \textcolor{navy}{$[University\ of\ Toronto]_{ORG}$}, 
+% 	spends several months in \textcolor{navy}{{\textless}ORG{\textgreater}}'s 
+% 	\textcolor{darkgreen}{{\textless}LOC{\textgreater}} office every year.
+% \end{example}
+% \end{frame}
 
-\begin{frame}
-\frametitle{2nd-pass Enhancement}
-\begin{figure}
-	\centering
-	\resizebox{0.81 \textwidth}{!}{
-		\includegraphics{system}
-	}
-	% \caption{\scriptsize Illustration of 2nd-pass}
-\end{figure}
-\end{frame}
+% \begin{frame}
+% \frametitle{2nd-pass Enhancement}
+% \begin{figure}
+% 	\centering
+% 	\resizebox{0.81 \textwidth}{!}{
+% 		\includegraphics{system}
+% 	}
+% \end{figure}
+% \end{frame}
 
 
 \subsection{Model Advantage}
 
 \begin{frame}
 \frametitle{Model Advantages}
-\small
-\begin{block}{Computational Efficiency}
-	\begin{itemize}
-		\item FOFE can be expressed as sparse matrix, i.e. $indices$ \& $values$
-		\item $fofe(seq) \cdot embed = 
-				[\alpha^{n-1}, ..., \alpha, 1] \cdot lookup(seq, embed)$
-		% \item Expensive modules like LSTM and CRF are avoided.
-	\end{itemize}
-\end{block}
+% \small
+% \begin{block}{Computational Efficiency}
+% 	\begin{itemize}
+% 		\item FOFE can be expressed as sparse matrix, i.e. $indices$ \& $values$
+% 		\item $fofe(seq) \cdot embed = 
+% 				[\alpha^{n-1}, ..., \alpha, 1] \cdot lookup(seq, embed)$
+% 	\end{itemize}
+% \end{block}
 \begin{block}{Data Availability}
 	Correct annotation for the entire sentence is NOT a must.
 	\begin{itemize}
@@ -487,9 +541,9 @@
 		{Stack-LSTM-CRF, char-LSTM} \parencite{lample2016neural}  & \cmark & \cmark & \xmark & \xmark & \xmark & {\bf 90.94} \\
 		\hline \hline
 		{\bf FOFE-NER} (single) & \cmark & \cmark & \xmark & \xmark & \xmark & {\bf 90.71} \\
-		{\bf FOFE-NER} (single) + 2nd-pass  & \cmark & \cmark & \xmark & \xmark & \xmark & {\bf 90.85} \\
+		% {\bf FOFE-NER} (single) + 2nd-pass  & \cmark & \cmark & \xmark & \xmark & \xmark & {\bf 90.85} \\
 		{\bf FOFE-NER} (ensemble) + dev  & \cmark & \cmark & \xmark & \xmark & \xmark & {\bf 90.92} \\
-		{\bf FOFE-NER} (ensemble) + dev + 2nd-pass  & \cmark & \cmark & \xmark & \xmark & \xmark & {\bf 91.17} \\
+		% {\bf FOFE-NER} (ensemble) + dev + 2nd-pass  & \cmark & \cmark & \xmark & \xmark & \xmark & {\bf 91.17} \\
 		\hline
 	\end{tabular}}
 	\caption{\scriptsize Performance ($F_1$ score) comparison among various neural models reported on the CoNLL dataset, and the different features used in these methods.}
@@ -531,7 +585,7 @@
 \begin{frame}
 \frametitle{EDL in KBP2015}
 \begin{table}
-% \resizebox{\linewidth}{!}{
+	\resizebox{\linewidth}{!}{
 	\centering
 	\begin{tabular}{|l|lll|lll|}
 		\hline
@@ -544,7 +598,7 @@
 		Chinese & 79.2 & 74.8 & \bf 76.9 & 79.3 & 71.7 & 75.3 \\
 		Spanish & 78.4 & 72.2 & 75.2 & 79.9 & 71.8 & \bf 75.6 \\
 		\hline
-	\end{tabular}%}
+	\end{tabular}}
 	\caption{\scriptsize Entity Discovery Performance of our method on the KBP2015 EDL evaluation data, with comparison to the best systems in KBP2015 official evaluation.}
 	\label{tbl:kbp2015cmp}
 \end{table}
@@ -562,7 +616,7 @@
 \end{itemize}
 \end{block}
 \begin{example}
-	\textcolor{darkorange}{$[Hinto]_{\textit{PER-NAM}}$}, 
+	\textcolor{darkorange}{$[Hinton]_{\textit{PER-NAM}}$}, 
 	a \colorbox{lightyellow}{\textcolor{darkorange}{$[professor]_{\textit{PER-NOM}}$}} of \textcolor{navy}{$[University\ of\ \textcolor{darkmagenta}{[Toronto]_{\textit{GPE-NAM}}}]_{\textit{ORG-NAM}}$}, 
 	spends several months in \textcolor{navy}{$[Google]_{\textit{ORG-NAM}}$}'s 
 	\textcolor{darkgreen}{$[Mountain\ View]_{\textit{LOC-NAM}}$} office every year.
@@ -582,6 +636,7 @@
 \end{block}
 \end{frame}
 
+
 \begin{frame}
 \frametitle{Dataset Effectivness}
 \begin{table}
@@ -597,38 +652,59 @@
 	\caption{\scriptsize Our entity discovery official performance (English only) in KBP2016 is shown as a comparison of three models trained by different combinations of training data sets. }
 	\label{tbl:kbp2016dataset}	
 \end{table}
+\begin{alertblock}{}
+	\small
+	\textsc{Fofe-Ner} ranks \textcolor{red}{\textbf{2nd}} place in \textcolor{red}{\textbf{first participation}}.
+\end{alertblock}
+\begin{alertblock}{}
+	\small
+	\textsc{Fofe-Ner} is the \textcolor{red}{\textbf{best single model}} among all participants.
+\end{alertblock}
 \end{frame}
 
 
+
+% \begin{frame}
+% \frametitle{Official Evaluation}
+% \begin{table}
+% 	\centering
+% 	\resizebox{\textwidth}{!}{
+% 	\begin{tabular}{|l|lll|lll|lll|}
+% 		\hline
+% 		\multirow{2}{*}{LANG}  &
+% 		\multicolumn{3}{c|}{single} & \multicolumn{3}{c|}{2016 Best}\\
+% 		& P & R & F1 & P & R & F1\\
+% 		\hline \hline
+% 		ENG & 0.836 & 0.680 & 0.750 & 0.846 & 0.710 & 0.772 \\
+% 		CMN & 0.789 & 0.625 & 0.698 & 0.789 & 0.737 & 0.762 \\
+% 		SPA & 0.835 & 0.602 & 0.700 & 0.839 & 0.656 & 0.736 \\
+% 		ALL & 0.819 & 0.639 & {\bf 0.718} & 0.802 & 0.704 & 0.756  \\
+% 		\hline 
+% 	\end{tabular}}
+% 	\caption{\scriptsize Official entity discovery performance of our methods on KBP2016 trilingual EDL track. Nominal mentions in Spanish are ignored since no training data is found for them.}
+% 	\label{tbl:kbp2016cmp}
+% \end{table}
+% \end{frame}
+
+
+
+\section{Conclusion}
 \begin{frame}
-\frametitle{Ensemble Effectiveness}
-\begin{table}
-	\centering
-	\resizebox{\textwidth}{!}{
-	\begin{tabular}{|l|lll|lll|lll|}
-		\hline
-		\multirow{2}{*}{LANG}  &
-		\multicolumn{3}{c|}{single} & \multicolumn{3}{c|}{ensemble} & \multicolumn{3}{c|}{2016 Best}\\
-		& P & R & F1 & P & R & F1 & P & R & F1\\
-		\hline \hline
-		ENG & 0.836 & 0.680 & 0.750 & 0.810 & 0.745 & \textbf{0.776} & 0.846 & 0.710 & 0.772 \\
-		CMN & 0.789 & 0.625 & 0.698 & 0.729 & 0.698 & \textbf{0.713} & 0.789 & 0.737 & 0.762 \\
-		SPA & 0.835 & 0.602 & 0.700 & \multicolumn{3}{c|}{Coming Soon} & 0.839 & 0.656 & 0.736 \\
-		ALL & 0.819 & 0.639 & {\bf 0.718} & \multicolumn{3}{c|}{Coming Soon} & 0.802 & 0.704 & 0.756  \\
-		\hline 
-	\end{tabular}}
-	% \begin{tabular}{|l|lll|lll|}
-	% 	\hline
-	% 	\multirow{2}{*}{LANG} & \multicolumn{3}{c|}{FOFE-NER} & \multicolumn{3}{c|}{Track Best} \\
-	% 	& P & R & F1 & P & R & F1 \\
-	% 	CMN & \\
-	% 	SPA & \\
-	% 	ALL & \\
-	% 	\hline 
-	% \end{tabular}
-	\caption{\scriptsize Official entity discovery performance of our methods on KBP2016 trilingual EDL track. Nominal mentions in Spanish are ignored since no training data is found for them.}
-	\label{tbl:kbp2016cmp}
-\end{table}
+\frametitle{Conclusion}
+% \begin{itemize}
+% 	\item A local detection approach to NER and MD by applying FFNN on top of FOFE
+% 	\item No feature engineering and No external knowledge
+% 	\item On a par with state-of-the-art ED system
+% \end{itemize}
+\begin{block}{}
+	A local detection approach to NER and MD by applying FFNN on top of FOFE
+\end{block}
+\begin{block}{}
+	No feature engineering and No external knowledge
+\end{block}
+\begin{block}{}
+	On a par with state-of-the-art ED system
+\end{block}
 \end{frame}
 
 
@@ -639,6 +715,14 @@
 {\huge \textsc{Thank You!}}\\
 \ \\
 {\huge \textsc{(Q\&A)}}
+\ \\
+\ \\
+\ \\
+\begin{description}
+	\small
+	\item[code] \url{https://github.com/xmb-cipher/fofe-ner}
+	\item[demo] \url{http://www.eecs.yorku.ca/~nana/ner-home.html}
+\end{description}
 \end{center}
 \end{frame}
 
