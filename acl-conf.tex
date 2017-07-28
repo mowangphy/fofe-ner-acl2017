@@ -14,6 +14,8 @@
 % % Override palette coloring with secondary
 % \setbeamercolor{subsection in head/foot}{bg=SECONDARY,fg=white}
 
+\usepackage{pgfpages}
+\setbeameroption{show notes on second screen}
 
 % not included by beamer
 \usepackage{multirow}
@@ -72,6 +74,13 @@
 \begin{frame}
 \frametitle{Outline}
 \tableofcontents
+\note{
+	Good morning. \\
+	My name is Mingbin. I am from York University. \\
+	This presentation is to report the paper \textsc{
+		A Local Detection Approach for Named Entity Recogntion and Mention Detection
+	}
+}
 \end{frame}
 
 
@@ -102,6 +111,15 @@
 		\item[\textcolor{darkmagenta}{MISC}] Miscellaneous
 	\end{description}
 \end{columns}
+\note{
+	NER \& MD sometimes is called entity discovery.\\
+	It is a sub-task of information retrieval that finds and classifies entities in text.\\
+	For example, in this sentence (read slides),\\
+	we want to tell 
+	Hinton is a PER, 
+	Google is an ORG, and
+	Mountain View is a LOC.
+}
 \end{frame}
 
 \begin{frame}
@@ -129,6 +147,14 @@
 		\item[\textcolor{crimson}{FAC-\{NAME, NOMINAL\}}] Facility
 	\end{description}
 \end{columns}
+\note{
+	Some task is more difficult. \\
+	We may need to detect nested mentions, 
+	e.g. Toronto is embeded in UofT. 
+	We need to find out Toronto is GPE and UofT is ORG.\\
+	We may also need to detect nominal mentions,
+	e.g. We need to know ``professor'' refers to a person in real world.
+}
 \end{frame}
 
 \subsection{Review}
@@ -142,6 +168,11 @@
 	}
 	\caption{\scriptsize Illustration of popular neuro-NER models}
 \end{figure}
+\note{
+	A common solution to this problem is sequence labeling.\\
+	Each word in a sentence is modeled by word embedding and either CNN or LSTM.\\
+	The sentence is modeled by either CNN or LSTM, and decoded by CRF.\\
+}
 \end{frame}
 
 
@@ -168,6 +199,14 @@
 	\item $\alpha \in (0, 1)$ and $t \in \{{\mathbb Z}|1 \le x \le n\}$
 	\end{itemize}
 \end{definition}
+\note{
+	Instead of CNN and LSTM, we adpots another sequence modeling method. \\
+	It's \textsc{Fixed-size Orinally Forgetting Encoding}, or FOFE. \\
+	Let's say we have a sequence of $n$ symbols, $w1, w2, ..., w_n$. \\
+	Each symbol is represented in a 1-hot vector. \\
+	The encoding of a partial sequence up to the current symbol is the partial encoding up to the previous symbol plus the 1-hot vector of the current symbol.\\
+	$\alpha$ is called forgetting factor. It's usually picked between 0 and 1.
+}
 \end{frame}
 
 
@@ -215,6 +254,10 @@
 		\caption{\scriptsize Partial encoding of $w_6, w_4, w_5, w_0, w_5, w_4$}
 	\end{table}
 \end{columns}
+\note{
+	Since the encoding is weighted sum of each symbol, its size depends on vocabulory size only.\\
+	It is able to encode any sequence into a fixed-size vector.
+}
 \end{frame}
 
 \subsection{Uniqueness of FOFE}
@@ -237,6 +280,11 @@
 % 	(2) $c_0 \times \alpha^0 + c_1 \times \alpha^1 + ... + c_n \times \alpha^n = 0$, $c_i \in \{-1, 0, 1\}$
 % 	% \end{enumerate}
 % \end{proof}
+\note{
+	FOFE has a very nice uniqueness property. \\
+	(READ SLIDES) \\
+	Simply put, FOFE is a lossless fixed-size prepresentation for sequence modeling.
+}
 \end{frame}
 
 
@@ -280,6 +328,29 @@
 		\end{align*}
 	\end{block}
 % \end{columns}
+\note{
+	FOFE is significantly faster than LSTM.\\
+	e.g. In LSTM, we first get the embedding by of each word. It's conceptually a matrix multiplication, though implememted as table lookup. Then, the encoding at each postion must be computed step by step. Each step consists of 4 matrix multiplications. \\
+	FOFE conceptually a vector of geometric series times the matrix of one-hot vectors. 
+	Similarly, word embedding is used to reduce dimensions. 
+	Because of associativity of matrix multipliation, we can do table lookup first to get a much smaller matrix. A single matrix multiplicatio leads to the final encoding of the sentence. 
+}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Universial Framework for NLP}
+\begin{figure}
+	\centering
+	\resizebox{0.56 \textwidth}{!}{
+		\includegraphics{fofe-ffnn-nlp}
+	}
+	\caption{\scriptsize FOFE-FFNN for NLP}
+\end{figure}
+\note{
+	Because FOFE is lossless fixed-size representation and FFNN is a universial approximator,\\
+	FOFE plus FFNN serves as a universail framework for NLP.\\
+}
 \end{frame}
 
 
@@ -295,7 +366,7 @@
 \begin{block}{Intuition}
 	\begin{itemize}
 	\item People rarely conduct a global decoding over the entire sentence to pinpoint entities.
-	\item The key to accurate local is to have full access to
+	\item The key to accurate local detection is to have full access to
 		\textbf{\textcolor{red}{the fragment itself}}, and
 		\textbf{\textcolor{red}{its contextual information}}.
 	\item FOFE is a \textbf{\textcolor{red}{lossless}} representation of \textbf{\textcolor{red}{fixed length}}.
@@ -310,13 +381,26 @@
     \textbf{Our} chief Mary Shapiro left \textbf{us} in December?
     \end{itemize}
 \end{example}
+\note{
+	Here's our \textsc{Local Detection} algorithm.\\
+	The intution behind this idea is that: \\
+	(read slides)\\
+	Let's say we're interested in the text fragment May Shapiro in this sentence.\\
+	As long as we know it is a cheif and it can performs an action of ``left'', we can tell it's a person. Whether S.E.C is an ORG or not and whether Washington is a LOC or not do not affect our decision.
+}
 \end{frame}
+
 \begin{frame}
 \begin{block}{Algorithm}
-	\begin{itemize}
-	\item Extract features from \textbf{\textcolor{red}{each segment}} and send them to an FFNN.
-	\item Remove overlapping / inconsistent labels.
-	\end{itemize}
+	\begin{overprint}
+	\onslide<1>
+		Our methods treats the \textcolor{red}{\textbf{whole sentence}} as context to make a local decision for each text fragment.
+	\onslide<2>
+		\begin{itemize}
+		\item Extract features from \textbf{\textcolor{red}{each segment}} and send to FFNN.
+		\item Remove overlapping / inconsistent labels.
+		\end{itemize}
+	\end{overprint}
 \end{block}
 \begin{figure}
 	\centering
@@ -325,6 +409,16 @@
 	}
 	\caption{\scriptsize Illustration of local detection}
 \end{figure}
+\note{
+	Unlike previous local detection approach, ours \textsc{Local Detection} approach treat te entire sentence as context. The local decision is made based on global information.\\
+	Our \textsc{Local Detection} approach extract features from each segment and sends them to an FFNN.\\
+	Let's say the text fragment we're interested in is ``UofT''.\\
+	It divides the sentence into 3 disjoint sub-sequence.\\
+	Everything to the left of UofT is called left context. \\
+	Everything to the right of UofT is called right context. \\
+	Becuase these 3 pieces are sequences of words. They can be easily modeled by FOFE.\\
+	Because FOFE is fixed-size, we pick FFNN as our classifier. \\
+}
 \end{frame}
 
 
@@ -387,6 +481,20 @@
 		    }
 	\end{overprint}
 \end{example}
+\note{
+	we model the text fragment at word level and character level.\\
+	Let's say we're interested in the text fragment ``Mary Shapiro'' in this sentence.\\
+
+	The text fragment is first modeled by BoW.\\
+	At the same time, it can be viewed as a character sequence. So we can construct a bi-directional FOFE to model its internal structure. \\
+	Similary, we apply character CNN as well. 
+
+	In terms of context feature, we build 2 FOFE represnetation for left context and right context respectively. 
+
+	Finally, in order to emphize the order of words in the text fragment and their relationship to the context, we create 2 more FOFE representation.
+	One is from the start of the sentence to the end of the text fragment.
+	The other one is from the end ofthe sentence to the start of the text fragment.
+}
 \end{frame}
 
 % \subsection{2nd-pass Enhancement}
@@ -445,6 +553,18 @@
 		\item Feature-engineering-free
 	\end{itemize}
 \end{alertblock}
+\note{
+	Our model has several advantages over existing solutions.\\
+
+	Since it's local detection, correct annotation for the entire sentence is not a must.\\
+	As long as one entity is correctly labled, it can be used as a training example. \\
+	So, data annotated with different standard are more usable. \\
+	Wikipedia highlightsan entity's first apperance in an article. This kind of machine-generated data is very accurate locally.
+
+	We assign scores for each text fragment. e.g. if we use the example of UofT, UofT has its own score and Toronto has its own score. \\
+	The user detects nested entity. He can easily control whether to keep it or not based on the task definition.\\
+	Our word level feature and character feature are derived from data. There is not feature engineering at all.
+}
 \end{frame}
 
 
@@ -479,6 +599,10 @@
     \caption{\scriptsize Data distribution of CoNLL2003}
     \label{tbl:conll2003stat}
 \end{table}
+\note{
+	We first evaluates our model on CoNLL2003 shared task. \\
+	The task defines 4 non-nested named entities. 
+}
 \end{frame}
 
 \begin{frame}
@@ -495,8 +619,8 @@
 		\multirow{6}{*}{\shortstack{word\\level}} & 
 		\multirow{3}{*}{\shortstack[l]{case-\\insensitive}} &
 		context FOFE incl. word fragment & 86.64 & 77.04 & 81.56 \\
-		& &context FOFE excl. word fragment & 53.98 & 42.17 & 47.35 \\
-		& & BoW of word fragment & 82.92 & 71.85 & 76.99  \\ \cline{2-6} 
+		& &context FOFE excl. word fragment & 53.98 & 42.17 & \textcolor<2-3>{red}{47.35} \\
+		& & BoW of word fragment & 82.92 & 71.85 & \textcolor<2-3>{red}{76.99}  \\ \cline{2-6} 
 		& \multirow{3}{*}{\shortstack[l]{case-\\sensitive}} & 
 		context FOFE incl. word fragment & 88.88 & 79.83 &84.12  \\
 		& &context FOFE excl. word fragment & 50.91 & 42.46 & 46.30  \\
@@ -506,9 +630,9 @@
 		& \multicolumn{2}{l|}{Char CNN of word fragment} & 78.93 & 69.49 & 73.91 \\ \hline
 		\multicolumn{3}{|l|}{all case-insensitive features} &  90.11 & 82.75 &  86.28  \\ 
 		\multicolumn{3}{|l|}{all case-sensitive features} & 90.26 & 86.63 & 88.41 \\ 
-		\multicolumn{3}{|l|}{all word-level features} & 92.03 & 86.08 & 88.96  \\ \hline
-		\multicolumn{3}{|l|}{all word-level \& Char FOFE features} & 91.68 &  88.54 & \bf 90.08 \\
-		\multicolumn{3}{|l|}{all word-level \& Char CNN features} & 91.80 & 88.58 & \bf 90.16 \\ \hline
+		\multicolumn{3}{|l|}{all word-level features} & 92.03 & 86.08 & \textcolor<3>{red}{88.96} \\ \hline
+		\multicolumn{3}{|l|}{all word-level \& Char FOFE features} & 91.68 &  88.54 & \textcolor<4>{red}{\bf 90.08} \\
+		\multicolumn{3}{|l|}{all word-level \& Char CNN features} & 91.80 & 88.58 & \textcolor<4>{red}{\bf 90.16} \\ \hline
 		\multicolumn{3}{|l|}{all word-level \& all char-level features}  & 93.29 &  88.27 &  \bf 90.71  \\
 		% \multicolumn{3}{|l|}{all features + {\bf dev set} + 5-fold cross-validation} & 92.58 &  89.31 &  \bf 90.92  \\
 		% \multicolumn{3}{|l|}{all features + {\bf 2nd-pass}} & 92.13 &  89.61 &  \bf 90.85  \\
@@ -523,6 +647,13 @@
 %   \begin{block}{The Overlay Block}
 %     Block Text
 %   \end{block}
+\note{
+	Let's look at the effectivenes of various features.\\
+	From line2, we can see that the context along does much better than random guess. It proves that context is a deciding factor.\\
+	From line3, we can see that the text fragment alone is not strong enough. It's ambiguous.\\
+	From line11, we can see that when we combined all word level features of text fragment and context, it allows us to make accurate local decision. \\
+	Line 12 includes character FOFE. Line 13 includes character. FOFE is competitive to CNN when modeling the internal structure of the text fragment.
+}
 \end{frame}
 
 \begin{frame}
@@ -549,6 +680,11 @@
 	\caption{\scriptsize Performance ($F_1$ score) comparison among various neural models reported on the CoNLL dataset, and the different features used in these methods.}
 	\label{tbl:nn-cmp:CoNLL03}
 \end{table}
+\note{
+	In this table, we comare our result with other neural network models.\\
+	Except the model in line 5, all other methods involves heavy feature engineering or make use of external knowledge.\\
+	However, the model in line 5 is much more computational expensive than ours.
+}
 \end{frame}
 
 
@@ -580,6 +716,11 @@
 	\caption{\scriptsize Number of Documents in KBP2015}
 	\label{tbl:kbp2015stat}
 \end{table}
+\note{
+	We further evaluate our model using the EDL track in KBP2015. \\
+	The contest is trilingual.\\
+	Documents are related but not parallel.
+}
 \end{frame}
 
 \begin{frame}
@@ -602,6 +743,12 @@
 	\caption{\scriptsize Entity Discovery Performance of our method on the KBP2015 EDL evaluation data, with comparison to the best systems in KBP2015 official evaluation.}
 	\label{tbl:kbp2015cmp}
 \end{table}
+\note{
+	On the left hand side of the table, we have the perfrmance of the track best. \\
+	Ours is on the right hand side.\\
+	Our model performs similarly to the best in English and CHinese, and surpasses the best in Spanish and the overall performance. \\
+
+}
 \end{frame}
 
 
@@ -621,6 +768,10 @@
 	spends several months in \textcolor{navy}{$[Google]_{\textit{ORG-NAM}}$}'s 
 	\textcolor{darkgreen}{$[Mountain\ View]_{\textit{LOC-NAM}}$} office every year.
 \end{example}
+\note{
+	We participated the EDL track of KBP2016.\\
+	The task is much harder in the sense that the particpants were asked to annotate nominal mentions.
+}
 \end{frame}
 
 \begin{frame}
@@ -634,6 +785,10 @@
 \begin{block}{In-house dataset}
 	A set of 10,000 English and Chinese documents is manually labeled using some annotation rules similar to the KBP 2016 guidelines.
 \end{block}
+\note{
+	In 2016, NIST didn't provide any official training data. \\
+	We make use of 3 data sources (READ SLIDES)
+}
 \end{frame}
 
 
@@ -660,6 +815,11 @@
 	\small
 	\textsc{Fofe-Ner} is the \textcolor{red}{\textbf{best single model}} among all participants.
 \end{alertblock}
+\note{
+	When we compare line1 with line2, we can see the performance gain from machine-generated data.\\
+	Even though it's our first participation, we rank the 2nd place. \\
+	It is also the best single-model system among all participants. \\
+}
 \end{frame}
 
 
@@ -705,6 +865,11 @@
 \begin{block}{}
 	On a par with state-of-the-art ED system
 \end{block}
+\note{
+	In conclusion, 
+	this paper proposed a local detection approach to NER \& MD by applying FFNN on top of FOFE. \\
+	We reached state-of-the-art performance without any feature engineering.
+}
 \end{frame}
 
 
@@ -724,6 +889,10 @@
 	\item[demo] \url{http://www.eecs.yorku.ca/~nana/ner-home.html}
 \end{description}
 \end{center}
+\note{
+	If you're interested in our work, feel free to try our demo and implmenetation. \\
+	Thanks for your attention. 
+}
 \end{frame}
 
 \begin{frame}[noframenumbering,allowframebreaks]

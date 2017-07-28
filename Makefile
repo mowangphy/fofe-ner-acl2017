@@ -8,4 +8,4 @@ acl-conf:
 
 clean:
 	latexmk -C
-	rm -f `ls | egrep -v ".*\.(tex|bib|pdf|cls|png|pptx|bst)|Makefile"`
+	rm -f `ls | egrep -v ".*\.(tex|bib|pdf|cls|png|jpeg|pptx|bst)|Makefile"`
