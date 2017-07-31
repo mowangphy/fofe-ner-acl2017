@@ -115,6 +115,9 @@
 	NER \& MD sometimes is called entity discovery.\\
 	It is a sub-task of information retrieval that finds and classifies entities in text.\\
 	For example, in this sentence (read slides),\\
+	{ 	\small
+		Hinton, a professor of UofT, spends several months in Google's Mountain View office every year.\\
+	}
 	we want to tell 
 	Hinton is a PER, 
 	Google is an ORG, and
@@ -283,6 +286,10 @@
 \note{
 	FOFE has a very nice uniqueness property. \\
 	(READ SLIDES) \\
+	{	\small
+		if $\alpha$ is between 0 and 0.5, FOFE is unique for any countable vocabulary V and any finite value T. \\
+		if $\alpha$ is between 0.5 and 1, given any finite value T and countable vocabulary V, FOFE is almost unique, except a finite set of countable choices of $\alpha$.\\
+	}
 	Simply put, FOFE is a lossless fixed-size prepresentation for sequence modeling.
 }
 \end{frame}
@@ -330,7 +337,7 @@
 % \end{columns}
 \note{
 	FOFE is significantly faster than LSTM.\\
-	e.g. In LSTM, we first get the embedding by of each word. It's conceptually a matrix multiplication, though implememted as table lookup. Then, the encoding at each postion must be computed step by step. Each step consists of 4 matrix multiplications. \\
+	e.g. In LSTM, we first get the embedding by of each word. It's conceptually a matrix multiplication. It is implememted as table lookup. Then, the encoding at each postion must be computed step by step. Each step consists of 4 matrix multiplications. \\
 	FOFE conceptually a vector of geometric series times the matrix of one-hot vectors. 
 	Similarly, word embedding is used to reduce dimensions. 
 	Because of associativity of matrix multipliation, we can do table lookup first to get a much smaller matrix. A single matrix multiplicatio leads to the final encoding of the sentence. 
@@ -385,6 +392,11 @@
 	Here's our \textsc{Local Detection} algorithm.\\
 	The intution behind this idea is that: \\
 	(read slides)\\
+	{\small
+		People rarely conduct a global decoding over the entire sentence to pinpoint entities.\\
+		he key to accurate local detection is to have full access to the fragment itself, and its contextual information.\\
+		We picked FOFE as our method of modeling these two pieces because FOFE is a lossless representation of fixed length.\\
+	}
 	Let's say we're interested in the text fragment May Shapiro in this sentence.\\
 	As long as we know it is a cheif and it can performs an action of ``left'', we can tell it's a person. Whether S.E.C is an ORG or not and whether Washington is a LOC or not do not affect our decision.
 }
@@ -410,7 +422,11 @@
 	\caption{\scriptsize Illustration of local detection}
 \end{figure}
 \note{
-	Unlike previous local detection approach, ours \textsc{Local Detection} approach treat te entire sentence as context. The local decision is made based on global information.\\
+	Unlike previous local detection approach, ours \textsc{Local Detection} approach treat the entire sentence as context. \\
+	The local decision is made based on global information.
+
+	\textcolor{red}{\textbf{(Next)}}
+	
 	Our \textsc{Local Detection} approach extract features from each segment and sends them to an FFNN.\\
 	Let's say the text fragment we're interested in is ``UofT''.\\
 	It divides the sentence into 3 disjoint sub-sequence.\\
@@ -483,14 +499,16 @@
 \end{example}
 \note{
 	we model the text fragment at word level and character level.\\
-	Let's say we're interested in the text fragment ``Mary Shapiro'' in this sentence.\\
-
-	The text fragment is first modeled by BoW.\\
-	At the same time, it can be viewed as a character sequence. So we can construct a bi-directional FOFE to model its internal structure. \\
+	Let's say we're interested in the text fragment ``Mary Shapiro'' in this sentence. 
+	\textcolor{red}{\textbf{(Next)}}\\
+	The text fragment is first modeled by BoW. 
+	\textcolor{red}{\textbf{(Next)}}\\
+	At the same time, it can be viewed as a character sequence. So we can construct a bi-directional FOFE to model its internal structure. 
+	\textcolor{red}{\textbf{(Next)}}\\
 	Similary, we apply character CNN as well. 
-
+	\textcolor{red}{\textbf{(Next)}}\\
 	In terms of context feature, we build 2 FOFE represnetation for left context and right context respectively. 
-
+	\textcolor{red}{\textbf{(Next)}}\\
 	Finally, in order to emphize the order of words in the text fragment and their relationship to the context, we create 2 more FOFE representation.
 	One is from the start of the sentence to the end of the text fragment.
 	The other one is from the end ofthe sentence to the start of the text fragment.
@@ -559,11 +577,11 @@
 	Since it's local detection, correct annotation for the entire sentence is not a must.\\
 	As long as one entity is correctly labled, it can be used as a training example. \\
 	So, data annotated with different standard are more usable. \\
-	Wikipedia highlightsan entity's first apperance in an article. This kind of machine-generated data is very accurate locally.
+	Wikipedia highlights an entity's first apperance in an article. This kind of machine-generated data is very accurate locally.
 
 	We assign scores for each text fragment. e.g. if we use the example of UofT, UofT has its own score and Toronto has its own score. \\
 	The user detects nested entity. He can easily control whether to keep it or not based on the task definition.\\
-	Our word level feature and character feature are derived from data. There is not feature engineering at all.
+	Another benefit is that our word level feature and character feature are derived from data. There is not feature engineering at all.
 }
 \end{frame}
 
@@ -600,7 +618,7 @@
     \label{tbl:conll2003stat}
 \end{table}
 \note{
-	We first evaluates our model on CoNLL2003 shared task. \\
+	We first evaluate our model on CoNLL2003 shared task. \\
 	The task defines 4 non-nested named entities. 
 }
 \end{frame}
@@ -648,10 +666,13 @@
 %     Block Text
 %   \end{block}
 \note{
-	Let's look at the effectivenes of various features.\\
+	Let's look at the effectivenes of various features. 
+	\textcolor{red}{\textbf{(Next)}}\\
 	From line2, we can see that the context along does much better than random guess. It proves that context is a deciding factor.\\
-	From line3, we can see that the text fragment alone is not strong enough. It's ambiguous.\\
-	From line11, we can see that when we combined all word level features of text fragment and context, it allows us to make accurate local decision. \\
+	From line3, we can see that the text fragment alone is not strong enough. It's ambiguous. 
+	\textcolor{red}{\textbf{(Next)}}\\
+	From line11, we can see that when we combined all word level features of text fragment and context, it allows us to make accurate local decision. 
+	\textcolor{red}{\textbf{(Next)}}\\
 	Line 12 includes character FOFE. Line 13 includes character. FOFE is competitive to CNN when modeling the internal structure of the text fragment.
 }
 \end{frame}
@@ -683,7 +704,7 @@
 \note{
 	In this table, we comare our result with other neural network models.\\
 	Except the model in line 5, all other methods involves heavy feature engineering or make use of external knowledge.\\
-	However, the model in line 5 is much more computational expensive than ours.
+	However, the model in line 5 is much more computationally expensive than ours.
 }
 \end{frame}
 
@@ -787,7 +808,12 @@
 \end{block}
 \note{
 	In 2016, NIST didn't provide any official training data. \\
-	We make use of 3 data sources (READ SLIDES)
+	We make use of 3 data sources (READ SLIDES)\\
+	{\small
+		training and evaluation data in 2015, \\
+		machine-labeld data generated from wikipedia, and \\
+		our in-house data.
+	}
 }
 \end{frame}
 
