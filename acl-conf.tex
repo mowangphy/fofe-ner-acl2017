@@ -69,11 +69,6 @@
 
 \begin{frame}
 \titlepage
-\end{frame}
-
-\begin{frame}
-\frametitle{Outline}
-\tableofcontents
 \note{
 	Good morning. \\
 	My name is Mingbin. I am from York University. \\
@@ -82,6 +77,18 @@
 	}
 }
 \end{frame}
+
+% \begin{frame}
+% \frametitle{Outline}
+% \tableofcontents
+% \note{
+% 	Good morning. \\
+% 	My name is Mingbin. I am from York University. \\
+% 	This presentation is to report the paper \textsc{
+% 		A Local Detection Approach for Named Entity Recogntion and Mention Detection
+% 	}
+% }
+% \end{frame}
 
 
 \section{Introduction}
@@ -207,7 +214,7 @@
 	It's \textsc{Fixed-size Orinally Forgetting Encoding}, or FOFE. \\
 	Let's say we have a sequence of $n$ symbols, $w1, w2, ..., w_n$. \\
 	Each symbol is represented in a 1-hot vector. \\
-	The encoding of a partial sequence up to the current symbol is the partial encoding up to the previous symbol plus the 1-hot vector of the current symbol.\\
+	The encoding of a partial sequence up to the current symbol is the partial encoding up to the previous symbol times $\alpha$ plus the 1-hot vector of the current symbol.\\
 	$\alpha$ is called forgetting factor. It's usually picked between 0 and 1.
 }
 \end{frame}
@@ -258,8 +265,8 @@
 	\end{table}
 \end{columns}
 \note{
-	Since the encoding is weighted sum of each symbol, its size depends on vocabulory size only.\\
-	It is able to encode any sequence into a fixed-size vector.
+	Since the encoding is the weighted sum of each symbol, its size depends on vocabulory size only.\\
+	FOFE is able to encode any sequence into a fixed-size vector.
 }
 \end{frame}
 
@@ -290,7 +297,7 @@
 		if $\alpha$ is between 0 and 0.5, FOFE is unique for any countable vocabulary V and any finite value T. \\
 		if $\alpha$ is between 0.5 and 1, given any finite value T and countable vocabulary V, FOFE is almost unique, except a finite set of countable choices of $\alpha$.\\
 	}
-	Simply put, FOFE is a lossless fixed-size prepresentation for sequence modeling.
+	Therefore, FOFE is a lossless fixed-size representation for sequence modeling.
 }
 \end{frame}
 
@@ -337,10 +344,10 @@
 % \end{columns}
 \note{
 	FOFE is significantly faster than LSTM.\\
-	e.g. In LSTM, we first get the embedding by of each word. It's conceptually a matrix multiplication. It is implememted as table lookup. Then, the encoding at each postion must be computed step by step. Each step consists of 4 matrix multiplications. \\
-	FOFE conceptually a vector of geometric series times the matrix of one-hot vectors. 
+	e.g. In LSTM, we first get the embedding of each word. It's conceptually a matrix multiplication. It is implemented as table lookup. Then, the encoding at each postion must be computed step by step. Each step consists of 4 matrix multiplications. \\
+	FOFE is equivalent to a vector of geometric series times the matrix of one-hot vectors. 
 	Similarly, word embedding is used to reduce dimensions. 
-	Because of associativity of matrix multipliation, we can do table lookup first to get a much smaller matrix. A single matrix multiplicatio leads to the final encoding of the sentence. 
+	Because of associativity of matrix multiplication, we can do table lookup first to get a much smaller matrix. A single matrix multiplication leads to the final encoding of the sentence. 
 }
 \end{frame}
 
@@ -393,12 +400,15 @@
 	The intution behind this idea is that: \\
 	(read slides)\\
 	{\small
-		People rarely conduct a global decoding over the entire sentence to pinpoint entities.\\
-		he key to accurate local detection is to have full access to the fragment itself, and its contextual information.\\
-		We picked FOFE as our method of modeling these two pieces because FOFE is a lossless representation of fixed length.\\
+		People rarely conduct a global decoding over the entire sentence to find and classify entities.\\
+		The key to accurate local detection is to have full access to the text fragment itself, and its contextual information.\\
 	}
-	Let's say we're interested in the text fragment May Shapiro in this sentence.\\
-	As long as we know it is a cheif and it can performs an action of ``left'', we can tell it's a person. Whether S.E.C is an ORG or not and whether Washington is a LOC or not do not affect our decision.
+	Let's say we have a sentence S.E.C chief Mayr Shapiro left Washington in December, and we're interested in the text fragment May Shapiro in this sentence.\\
+	As long as we know it is a cheif and it can perform an action of ``left'', we can tell it's a person. Whether S.E.C is an ORG or not and whether Washington is a LOC or not do not affect our decision.\\
+	(read slides)\\
+	{\small
+		We picked FOFE as our method of modeling these two pieces because FOFE is a lossless representation of fixed length.
+	}
 }
 \end{frame}
 
@@ -422,14 +432,14 @@
 	\caption{\scriptsize Illustration of local detection}
 \end{figure}
 \note{
-	Unlike previous local detection approach, ours \textsc{Local Detection} approach treat the entire sentence as context. \\
+	Unlike previous local detection approach, our approach treats the entire sentence as context. \\
 	The local decision is made based on global information.
 
 	\textcolor{red}{\textbf{(Next)}}
 	
-	Our \textsc{Local Detection} approach extract features from each segment and sends them to an FFNN.\\
+	Our \textsc{Local Detection} approach extracts features from each segment and sends them to an FFNN.\\
 	Let's say the text fragment we're interested in is ``UofT''.\\
-	It divides the sentence into 3 disjoint sub-sequence.\\
+	It divides the sentence into 3 disjoint sub-sequences.\\
 	Everything to the left of UofT is called left context. \\
 	Everything to the right of UofT is called right context. \\
 	Becuase these 3 pieces are sequences of words. They can be easily modeled by FOFE.\\
@@ -574,14 +584,16 @@
 \note{
 	Our model has several advantages over existing solutions.\\
 
-	Since it's local detection, correct annotation for the entire sentence is not a must.\\
-	As long as one entity is correctly labled, it can be used as a training example. \\
+	Since it's local detection, correct annotation for the entire sentence is not a must.
+	As long as one entity is correctly labeled, it can be used as a training example. \\
 	So, data annotated with different standard are more usable. \\
-	Wikipedia highlights an entity's first apperance in an article. This kind of machine-generated data is very accurate locally.
+	We can also generate high-quality training example easily. Wikipedia highlights an entity's first appearance in an article. The entity spanning is well-defined by the its hyper-link. This kind of machine-generated data is very accurate locally.
 
+	Our model handles nested mention.
+	Remember that 
 	We assign scores for each text fragment. e.g. if we use the example of UofT, UofT has its own score and Toronto has its own score. \\
-	The user detects nested entity. He can easily control whether to keep it or not based on the task definition.\\
-	Another benefit is that our word level feature and character feature are derived from data. There is not feature engineering at all.
+	The user detects nested entity. He can easily control whether to keep nested mention based on the task definition.\\
+	Another benefit is that our word level feature and character feature are derived from data. There is no feature engineering at all.
 }
 \end{frame}
 
@@ -810,9 +822,9 @@
 	In 2016, NIST didn't provide any official training data. \\
 	We make use of 3 data sources (READ SLIDES)\\
 	{\small
-		training and evaluation data in 2015, \\
-		machine-labeld data generated from wikipedia, and \\
-		our in-house data.
+		first, training and evaluation data in 2015, \\
+		second, machine-labeled data generated from wikipedia, and \\
+		at last, our in-house data.
 	}
 }
 \end{frame}
@@ -843,6 +855,7 @@
 \end{alertblock}
 \note{
 	When we compare line1 with line2, we can see the performance gain from machine-generated data.\\
+	It proves that our model can be easily improved by machine-generated data. \\
 	Even though it's our first participation, we rank the 2nd place. \\
 	It is also the best single-model system among all participants. \\
 }
@@ -886,6 +899,12 @@
 	A local detection approach to NER and MD by applying FFNN on top of FOFE
 \end{block}
 \begin{block}{}
+	Nested mention detection
+\end{block}
+\begin{block}{}
+	Much more efficient then known solutions
+\end{block}
+\begin{block}{}
 	No feature engineering and No external knowledge
 \end{block}
 \begin{block}{}
@@ -894,7 +913,8 @@
 \note{
 	In conclusion, 
 	this paper proposed a local detection approach to NER \& MD by applying FFNN on top of FOFE. \\
-	We reached state-of-the-art performance without any feature engineering.
+	it's able to detect nested mention.
+	We reached state-of-the-art performance with less computation resource and without any feature engineering.
 }
 \end{frame}
 
